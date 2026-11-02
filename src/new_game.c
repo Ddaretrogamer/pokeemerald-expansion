@@ -40,6 +40,7 @@
 #include "item_menu.h"
 #include "pokemon_storage_system.h"
 #include "pokemon_jump.h"
+#include "surfing_minigame.h"
 #include "decoration_inventory.h"
 #include "secret_base.h"
 #include "string_util.h"
@@ -241,6 +242,7 @@ static void ResetMiniGamesRecords(void)
     CpuFill16(0, &gSaveBlock2Ptr->berryCrush, sizeof(struct BerryCrush));
     SetBerryPowder(&gSaveBlock2Ptr->berryCrush.berryPowderAmount, 0);
     ResetPokemonJumpRecords();
+    ResetSurfingMinigameRecord();
     CpuFill16(0, &gSaveBlock2Ptr->berryPick, sizeof(struct BerryPickingResults));
 }
 
