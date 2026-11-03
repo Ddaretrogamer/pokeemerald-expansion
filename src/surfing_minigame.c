@@ -4,6 +4,7 @@
 #include "event_data.h"
 #include "gpu_regs.h"
 #include "main.h"
+#include "m4a.h"
 #include "malloc.h"
 #include "menu.h"
 #include "overworld.h"
@@ -19,6 +20,7 @@
 #include "window.h"
 #include "constants/rgb.h"
 #include "constants/songs.h"
+#include "constants/species.h"
 
 #define SURFER_X (DISPLAY_WIDTH / 2)
 #define COURSE_LENGTH (24 * 0x10000)
@@ -32,7 +34,6 @@
 #define INTRO_TAG 0x5753
 #define INTRO_TILE_BASE 128
 #define RESULTS_BORDER_TILE 440
-#define SPRAY_COUNT 4
 #define WORLD_COLUMNS 64
 #define FLAT_HEIGHT (116 - 8)
 #define SKY_TILE 0
@@ -81,8 +82,7 @@ struct SurfingGame
     u8 cloudSprites[2];
     u8 bannerSprite;
     u8 bonusSprite;
-    u8 spraySprites[SPRAY_COUNT];
-    u8 sprayAge[SPRAY_COUNT];
+    u8 spraySprite;
     u8 bonusAge;
     u8 bonusKind;
     u8 normalPalette;
@@ -92,7 +92,7 @@ struct SurfingGame
     bool8 descending;
     bool8 completed;
     bool8 newRecord;
-    bool8 resultsBorderVisible;
+    bool8 overlayBorderVisible;
 };
 
 static EWRAM_DATA struct SurfingGame *sSurf = NULL;
@@ -203,15 +203,16 @@ static const u8 sPoseTiles[7][2] =
 static const u8 sSequenceStarts[] = { 0x01, 0x0E, 0x1A, 0x29, 0x32, 0x40, 0x4D, 0x5C };
 static const u16 sSameFlipScores[] = { 0, 50, 150, 350 };
 
-static const u8 sTextPaused[] = _("PAUSED\n\n{A_BUTTON} / {START_BUTTON} Resume\n{B_BUTTON} Quit this run");
+static const u8 sTextPaused[] = _("PAUSED\n\n{A_BUTTON} / {START_BUTTON} RESUME\n{B_BUTTON} QUIT");
 static const u8 sTextGameOver[] = _("OUT OF HP");
 static const u8 sTextNewRecord[] = _("NEW PERSONAL BEST!");
-static const u8 sTextReturn[] = _("{A_BUTTON} Play again    {B_BUTTON} Return");
+static const u8 sTextReturn[] = _("{A_BUTTON} PLAY AGAIN    {B_BUTTON} RETURN");
 static const u8 sTextBest[] = _("BEST");
-static const u8 sTextHpLeft[] = _("HP left");
-static const u8 sTextRadnessScore[] = _("Radness");
-static const u8 sTextTotal[] = _("Total");
-static const u8 sTextCount[] = _("{A_BUTTON} Finish counting");
+static const u8 sTextHpLeft[] = _("HP LEFT");
+static const u8 sTextRadnessScore[] = _("RADNESS");
+static const u8 sTextTotal[] = _("TOTAL");
+static const u8 sTextPoints[] = _(" PTS");
+static const u8 sTextCount[] = _("{A_BUTTON} SKIP COUNT");
 
 static const s8 sRipple[] =
 {
@@ -222,10 +223,10 @@ static const s8 sRipple[] =
 static void CB2_InitSurfing(void);
 static void CB2_Surfing(void);
 static void HideOverlay(void);
+static void DrawOverlayBorder(void);
 static void ShowResults(void);
 static void LoadResultsBorder(void);
 static void StartRun(void);
-static void SpawnSpray(s16 height);
 
 static u16 GetBestScore(void)
 {
@@ -348,20 +349,33 @@ static void DrawHud(void)
 
 static void ShowOverlay(const u8 *text)
 {
+    u32 width = min(28, (GetStringWidth(FONT_SMALL, text, 0) + 16 + 7) / 8);
+    u32 height = (4 * GetFontAttribute(FONT_SMALL, FONTATTR_MAX_LETTER_HEIGHT) + 8 + 7) / 8;
+
+    HideOverlay();
+    SetWindowAttribute(WIN_OVERLAY, WINDOW_TILEMAP_LEFT, (30 - width) / 2);
+    SetWindowAttribute(WIN_OVERLAY, WINDOW_TILEMAP_TOP, (17 - height) / 2);
+    gWindows[WIN_OVERLAY].window.width = width;
+    gWindows[WIN_OVERLAY].window.height = height;
     FillWindowPixelBuffer(WIN_OVERLAY, PIXEL_FILL(1));
     Print(WIN_OVERLAY, 8, 4, text);
     PutWindowTilemap(WIN_OVERLAY);
+    DrawOverlayBorder();
     CopyWindowToVram(WIN_OVERLAY, COPYWIN_FULL);
 }
 
 static void HideOverlay(void)
 {
-    if (sSurf->resultsBorderVisible)
+    if (sSurf->overlayBorderVisible)
     {
-        for (u32 y = 0; y <= 10; y++)
-            for (u32 x = 4; x <= 25; x++)
+        u32 left = GetWindowAttribute(WIN_OVERLAY, WINDOW_TILEMAP_LEFT) - 1;
+        u32 top = GetWindowAttribute(WIN_OVERLAY, WINDOW_TILEMAP_TOP) - 1;
+        u32 right = left + GetWindowAttribute(WIN_OVERLAY, WINDOW_WIDTH) + 1;
+        u32 bottom = top + GetWindowAttribute(WIN_OVERLAY, WINDOW_HEIGHT) + 1;
+        for (u32 y = top; y <= bottom; y++)
+            for (u32 x = left; x <= right; x++)
                 sSurf->uiTilemap[y * 32 + x] = 0;
-        sSurf->resultsBorderVisible = FALSE;
+        sSurf->overlayBorderVisible = FALSE;
     }
     ClearWindowTilemap(WIN_OVERLAY);
     CopyWindowToVram(WIN_OVERLAY, COPYWIN_MAP);
@@ -491,8 +505,7 @@ static void ResetRun(void)
     sSurf->sceneFrame = 0;
     sSurf->animationFrame = 0;
     sSurf->bonusAge = 0;
-    for (i = 0; i < SPRAY_COUNT; i++)
-        sSurf->sprayAge[i] = 0;
+    gSprites[sSurf->spraySprite].invisible = TRUE;
     HideOverlay();
     SetWindowAttribute(WIN_OVERLAY, WINDOW_TILEMAP_LEFT, 1);
     gWindows[WIN_OVERLAY].window.width = 28;
@@ -592,14 +605,7 @@ static void UpdateSprites(void)
         bonus->subspriteTableNum = sSurf->bonusKind;
         bonus->y2 = -(24 - sSurf->bonusAge) / 4;
     }
-    for (u32 i = 0; i < SPRAY_COUNT; i++)
-    {
-        struct Sprite *spray = &gSprites[sSurf->spraySprites[i]];
-        spray->oam.tileNum = sSurf->tileStart + 0xA7;
-        spray->invisible = sSurf->sprayAge[i] == 0;
-        if (sSurf->sprayAge[i])
-            spray->x2 = 12 - sSurf->sprayAge[i];
-    }
+
 }
 
 static void CopyObjectTile(u32 *dest, const u32 *source, bool32 flip)
@@ -711,8 +717,7 @@ static void CreateGameSprites(void)
     }
     sSurf->bannerSprite = CreateEffectSprite(sBannerPartsTable, sSurf->tileStart + 0xE0, sSurf->normalPalette);
     sSurf->bonusSprite = CreateEffectSprite(sBonusPartsTable, sSurf->tileStart, sSurf->normalPalette);
-    for (u32 i = 0; i < SPRAY_COUNT; i++)
-        sSurf->spraySprites[i] = CreateEffectSprite(sSprayPartsTable, sSurf->tileStart + 0xA7, sSurf->sprayPalette);
+    sSurf->spraySprite = CreateEffectSprite(sSprayPartsTable, sSurf->tileStart + 0xA7, sSurf->sprayPalette);
 }
 
 static void CB2_InitSurfing(void)
@@ -787,7 +792,7 @@ static void CB2_InitSurfing(void)
     BlendPalettes(PALETTES_ALL, 16, RGB_BLACK);
     BeginNormalPaletteFade(PALETTES_ALL, 0, 16, 0, RGB_BLACK);
     SetVBlankCallback(VBlankCB_Surfing);
-    PlayNewMapMusic(MUS_RG_SURF);
+    PlayNewMapMusic(MUS_SURFING_PIKACHU);
     SetMainCallback2(CB2_Surfing);
 }
 
@@ -817,25 +822,29 @@ static void LoadResultsBorder(void)
     CpuCopy16(tiles, (void *)(BG_CHAR_ADDR(0) + RESULTS_BORDER_TILE * TILE_SIZE_4BPP), sizeof(tiles));
 }
 
-static void DrawResultsBorder(void)
+static void DrawOverlayBorder(void)
 {
     u16 tile = (1 << 12) | RESULTS_BORDER_TILE;
+    u32 left = GetWindowAttribute(WIN_OVERLAY, WINDOW_TILEMAP_LEFT) - 1;
+    u32 top = GetWindowAttribute(WIN_OVERLAY, WINDOW_TILEMAP_TOP) - 1;
+    u32 right = left + GetWindowAttribute(WIN_OVERLAY, WINDOW_WIDTH) + 1;
+    u32 bottom = top + GetWindowAttribute(WIN_OVERLAY, WINDOW_HEIGHT) + 1;
 
-    sSurf->uiTilemap[0 * 32 + 4] = tile;
-    sSurf->uiTilemap[0 * 32 + 25] = tile + 1;
-    sSurf->uiTilemap[10 * 32 + 4] = tile + 2;
-    sSurf->uiTilemap[10 * 32 + 25] = tile + 3;
-    for (u32 y = 1; y < 10; y++)
+    sSurf->uiTilemap[top * 32 + left] = tile;
+    sSurf->uiTilemap[top * 32 + right] = tile + 1;
+    sSurf->uiTilemap[bottom * 32 + left] = tile + 2;
+    sSurf->uiTilemap[bottom * 32 + right] = tile + 3;
+    for (u32 y = top + 1; y < bottom; y++)
     {
-        sSurf->uiTilemap[y * 32 + 4] = tile + 4;
-        sSurf->uiTilemap[y * 32 + 25] = tile + 4;
+        sSurf->uiTilemap[y * 32 + left] = tile + 4;
+        sSurf->uiTilemap[y * 32 + right] = tile + 4;
     }
-    for (u32 x = 5; x < 25; x++)
+    for (u32 x = left + 1; x < right; x++)
     {
-        sSurf->uiTilemap[0 * 32 + x] = tile + 5;
-        sSurf->uiTilemap[10 * 32 + x] = tile + 5;
+        sSurf->uiTilemap[top * 32 + x] = tile + 5;
+        sSurf->uiTilemap[bottom * 32 + x] = tile + 5;
     }
-    sSurf->resultsBorderVisible = TRUE;
+    sSurf->overlayBorderVisible = TRUE;
 }
 
 static void PrintResultCentered(u8 y, const u8 *text)
@@ -846,10 +855,10 @@ static void PrintResultCentered(u8 y, const u8 *text)
 
 static void PrintResultValue(u8 y, const u8 *label, u16 value)
 {
-    u8 text[5];
+    u8 text[12];
     u32 width;
 
-    ConvertIntToDecimalStringN(text, value, STR_CONV_MODE_LEFT_ALIGN, 4);
+    StringCopy(ConvertIntToDecimalStringN(text, value, STR_CONV_MODE_LEFT_ALIGN, 4), sTextPoints);
     width = GetStringWidth(FONT_SMALL, text, 0);
     Print(WIN_OVERLAY, 8, y, label);
     Print(WIN_OVERLAY, 152 - width, y, text);
@@ -874,7 +883,7 @@ static void DrawResults(void)
     Print(WIN_HUD, 4, 4, sSurf->tallyPhase == 8 ? sTextReturn : sTextCount);
     CopyWindowToVram(WIN_HUD, COPYWIN_GFX);
     PutWindowTilemap(WIN_OVERLAY);
-    DrawResultsBorder();
+    DrawOverlayBorder();
     CopyWindowToVram(WIN_OVERLAY, COPYWIN_FULL);
 }
 
@@ -916,6 +925,13 @@ static void FinishRun(bool32 completed)
     }
 }
 
+static void StartCelebration(void)
+{
+    sSurf->tallyPhase = 8;
+    sSurf->animationFrame = 0;
+    PlayCry_NormalNoDucking(SPECIES_PIKACHU, 0, CRY_VOLUME, CRY_PRIORITY_NORMAL);
+}
+
 static void UpdateResults(void)
 {
     if (JOY_NEW(A_BUTTON))
@@ -923,8 +939,7 @@ static void UpdateResults(void)
         sSurf->tallyHp = 0;
         sSurf->tallyRadness = 0;
         sSurf->tallyTotal = sSurf->score;
-        sSurf->tallyPhase = 8;
-        sSurf->animationFrame = 0;
+        StartCelebration();
         DrawResults();
         return;
     }
@@ -951,7 +966,7 @@ static void UpdateResults(void)
     {
         sSurf->tallyPhase++;
         if (sSurf->tallyPhase == 8)
-            sSurf->animationFrame = 0;
+            StartCelebration();
         sSurf->tallyDelay = sSurf->tallyPhase == 1 || sSurf->tallyPhase == 2 ? 64 : sSurf->tallyPhase == 3 ? 32 : 0;
     }
     DrawResults();
@@ -970,21 +985,6 @@ static s16 SurfaceHeight(u32 worldX, u8 *terrain)
     return height;
 }
 
-static void SpawnSpray(s16 height)
-{
-    for (u32 i = 0; i < SPRAY_COUNT; i++)
-    {
-        if (sSurf->sprayAge[i] == 0)
-        {
-            struct Sprite *spray = &gSprites[sSurf->spraySprites[i]];
-            sSurf->sprayAge[i] = 12;
-            spray->x = SURFER_X;
-            spray->y = height;
-            return;
-        }
-    }
-}
-
 static void SpawnBonus(u16 bonus)
 {
     struct Sprite *sprite = &gSprites[sSurf->bonusSprite];
@@ -999,9 +999,6 @@ static void UpdateEffects(void)
     sSurf->animationFrame++;
     if (sSurf->bonusAge)
         sSurf->bonusAge--;
-    for (u32 i = 0; i < SPRAY_COUNT; i++)
-        if (sSurf->sprayAge[i])
-            sSurf->sprayAge[i]--;
 }
 
 static void RotateBoard(void)
@@ -1016,7 +1013,6 @@ static void RotateBoard(void)
             sSurf->leftFrames = 0;
             sSurf->flips = min(3, sSurf->flips + 1);
             sSurf->flipFlags |= 1;
-            PlaySE(SE_BIKE_HOP);
         }
         if (++sSurf->pose > 14)
             sSurf->pose = 1;
@@ -1029,7 +1025,6 @@ static void RotateBoard(void)
             sSurf->rightFrames = 0;
             sSurf->flips = min(3, sSurf->flips + 1);
             sSurf->flipFlags |= 2;
-            PlaySE(SE_BIKE_HOP);
         }
         if (--sSurf->pose == 0)
             sSurf->pose = 14;
@@ -1060,9 +1055,10 @@ static void Land(u8 terrain)
         sSurf->stateTimer = 96;
         sSurf->flips = 0;
         sSurf->flipFlags = 0;
-        PlaySE(SE_RG_POKE_JUMP_FAILURE);
+        PlaySE(SE_SURFING_CRASH);
         return;
     }
+    PlaySE(SE_SURFING_LAND);
     sSurf->speed = max(0, (s16)sSurf->speed - rating * 64);
     if (sSurf->flips)
     {
@@ -1071,7 +1067,7 @@ static void Land(u8 terrain)
             bonus = sSurf->flips >= 3 ? 500 : 180;
         sSurf->radness = min(MAX_SCORE, sSurf->radness + bonus);
         SpawnBonus(bonus);
-        PlaySE(SE_RG_POKE_JUMP_SUCCESS);
+        PlaySE(SE_SURFING_FLIP);
     }
     sSurf->riderState = LANDING;
     sSurf->stateTimer = 8;
@@ -1130,7 +1126,7 @@ static void UpdateRider(void)
         sSurf->flipFlags = 0;
         sSurf->leftFrames = 0;
         sSurf->rightFrames = 0;
-        PlaySE(SE_BIKE_HOP);
+        PlaySE(SE_SURFING_JUMP);
     }
     else
         sSurf->speed = min(MAX_SPEED, sSurf->speed + 2);
@@ -1152,11 +1148,14 @@ static void ScrollWater(u16 speed, bool32 generateWaves)
 
 static void UpdateWake(void)
 {
-    if ((sSurf->riderState == RIDING || sSurf->riderState == LANDING) && sSurf->animationFrame % 4 == 0)
-    {
-        u8 terrain;
-        SpawnSpray(SurfaceHeight((sSurf->scroll >> 8) + SURFER_X + 8, &terrain));
-    }
+    struct Sprite *spray = &gSprites[sSurf->spraySprite];
+    u8 terrain;
+
+    // One attached graphic blinks on the water; nothing is left behind.
+    spray->invisible = (sSurf->riderState != RIDING && sSurf->riderState != LANDING)
+                    || (sSurf->animationFrame & 4) != 0;
+    spray->x = SURFER_X;
+    spray->y = SurfaceHeight((sSurf->scroll >> 8) + SURFER_X + 8, &terrain);
 }
 
 static void UpdateRun(void)
@@ -1190,8 +1189,7 @@ static void UpdateCoast(void)
         sSurf->screen = SCREEN_BEACH;
         sSurf->sceneFrame = 0;
         sSurf->bonusAge = 0;
-        for (u32 i = 0; i < SPRAY_COUNT; i++)
-            sSurf->sprayAge[i] = 0;
+        gSprites[sSurf->spraySprite].invisible = TRUE;
         sSurf->riderState = RIDING;
         sSurf->pose = 4;
         ClearWindowTilemap(WIN_HUD);
@@ -1199,6 +1197,29 @@ static void UpdateCoast(void)
         DrawBeach(FALSE);
         ChangeBgX(1, 192 * 256, BG_COORD_SET);
     }
+}
+
+static void UpdateMusicTempo(void)
+{
+    // Yellow's table is indexed by floor(speed / 0.5) in 8.8 fixed point.
+    static const u16 tempos[] = { 117, 109, 101, 93, 85 };
+    u16 scale = 256;
+
+    if (sSurf->screen == SCREEN_PAUSE)
+        return;
+    if (sSurf->screen == SCREEN_PLAY || sSurf->screen == SCREEN_START)
+    {
+        // Like Yellow, change tempo at a shared note boundary, so sustained
+        // notes keep their current timing rather than changing mid-note.
+        if (gMPlayInfo_BGM.trackCount < 3 || gMPlayInfo_BGM.tracks == NULL)
+            return;
+        for (u32 i = 0; i < 3; i++)
+            if (gMPlayInfo_BGM.tracks[i].wait != 1)
+                return;
+        scale = (256 * 117 + tempos[min(4, sSurf->speed >> 7)] / 2) / tempos[min(4, sSurf->speed >> 7)];
+    }
+    if (gMPlayInfo_BGM.tempoU != scale)
+        m4aMPlayTempoControl(&gMPlayInfo_BGM, scale);
 }
 
 static void CB2_Surfing(void)
@@ -1296,6 +1317,7 @@ static void CB2_Surfing(void)
             return;
         }
     }
+    UpdateMusicTempo();
     UpdateRippleBuffer(gScanlineEffect.srcBuffer);
     AnimateSprites();
     UpdateSprites();

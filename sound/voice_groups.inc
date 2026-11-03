@@ -201,3 +201,5 @@
 .include "sound/voicegroups/rg_sevii_45.inc"
 .include "sound/voicegroups/rg_sevii_67.inc"
 .include "sound/voicegroups/drumsets/rg_credits.inc"
+.include "sound/voicegroups/surfing_pikachu.inc"
+.include "sound/voicegroups/surfing_pikachu_sfx.inc"

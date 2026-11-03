@@ -9041,3 +9041,17 @@ DirectSoundWaveData_sd90_classical_whistle::
 	.align 2
 DirectSoundWaveData_sd90_enhanced_delay_shaku::
 	.incbin "sound/direct_sound_samples/sd90_enhanced_delay_shaku.bin"
+	
+@ Start Surfing Pikachu Sounds - ported from Yellow (pokeyellow)
+	.align 2
+DirectSoundWaveData_surfing_jump::
+	.incbin "sound/direct_sound_samples/surfing_jump.bin"
+	.align 2
+DirectSoundWaveData_surfing_flip::
+	.incbin "sound/direct_sound_samples/surfing_flip.bin"
+	.align 2
+DirectSoundWaveData_surfing_crash::
+	.incbin "sound/direct_sound_samples/surfing_crash.bin"
+	.align 2
+DirectSoundWaveData_surfing_land::
+	.incbin "sound/direct_sound_samples/surfing_land.bin"

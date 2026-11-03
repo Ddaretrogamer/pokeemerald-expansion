@@ -617,6 +617,12 @@ gSongTable::
 	song ph_nurse_held, MUSIC_PLAYER_SE2, 2
 	song ph_nurse_solo, MUSIC_PLAYER_SE2, 2
 
+	song mus_surfing_pikachu, MUSIC_PLAYER_BGM, 0
+	song se_surfing_jump, MUSIC_PLAYER_SE1, 1
+	song se_surfing_flip, MUSIC_PLAYER_SE2, 2
+	song se_surfing_crash, MUSIC_PLAYER_SE1, 1
+	song se_surfing_land, MUSIC_PLAYER_SE1, 1
+
 	.align 2
 dummy_song_header:
 	.byte 0, 0, 0, 0
