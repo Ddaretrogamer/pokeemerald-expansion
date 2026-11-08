@@ -225,7 +225,6 @@ Debug_EventScript_Script_5::
 	end
 
 Debug_EventScript_Script_6::
-	special StartSurfingMinigame
 	release
 	end
 
