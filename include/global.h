@@ -607,7 +607,7 @@ struct SaveBlock2
     /*0x18*/ struct Pokedex pokedex;
     /*0x90*/ u16 surfingBestScore;
              u8 filler_90[0x6];
->>>>>>> a990c124f3 (pikachus beach)
+    /*0x98*/ struct Time localTimeOffset;
     /*0xA0*/ struct Time lastBerryTreeUpdate;
     /*0xA8*/ u32 gcnLinkFlags; // Read by Pokémon Colosseum/XD
     /*0xAC*/ u32 encryptionKey;

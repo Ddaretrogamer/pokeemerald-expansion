@@ -558,10 +558,10 @@
 #define PHONEME_ID_NONE             0xFF
 
 //Surfing Pikachu Music and SFX
-#define MUS_SURFING_PIKACHU          625
-#define SE_SURFING_JUMP              626
-#define SE_SURFING_FLIP              627
-#define SE_SURFING_CRASH             628
-#define SE_SURFING_LAND              629
+#define MUS_SURFING_PIKACHU          610
+#define SE_SURFING_JUMP              611
+#define SE_SURFING_FLIP              612
+#define SE_SURFING_CRASH             613
+#define SE_SURFING_LAND              614
 
 #endif  // GUARD_CONSTANTS_SONGS_H

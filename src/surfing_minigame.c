@@ -254,6 +254,7 @@ static void VBlankCB_Surfing(void)
     TransferPlttBuffer();
     if (sSurf->screen == SCREEN_PLAY)
     {
+        // This bends the water, only turn it on while actually playing.
         gScanlineEffect.state = 1;
         ScanlineEffect_InitHBlankDmaTransfer();
     }
@@ -267,11 +268,13 @@ static void VBlankCB_Surfing(void)
 
 static void UpdateRippleBuffer(u8 buffer)
 {
+    // Keep the ripple in the water so it doesnt bend the HUD or sky.
     for (u32 y = 0; y < DISPLAY_HEIGHT; y++)
     {
         s16 offset = 0;
         if (sSurf->screen == SCREEN_PLAY && y >= WAVE_TOP_Y && y < HUD_TOP_Y)
         {
+            // Dont let any line get pulled past the top or bottom of the water.
             u32 phase = y + sSurf->animationFrame / 2;
             offset = sRipple[phase % ARRAY_COUNT(sRipple)];
             offset = max(WAVE_TOP_Y - (s32)y, min(offset, HUD_TOP_Y - 1 - (s32)y));
@@ -298,6 +301,7 @@ static void Task_EnterSurfing(u8 taskId)
 {
     if (gTasks[taskId].data[0] == 0)
     {
+        // Fade out the field first since the minigame takes over its backgrounds and sprites.
         BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_BLACK);
         gTasks[taskId].data[0]++;
     }
@@ -334,7 +338,9 @@ static void SetHudLayout(void)
 
 static void DrawHud(void)
 {
+    // Draw the progress bar and HP counter down here.
     u32 digit = 1000;
+    // The marker goes left as you get closer to the finish.
     u32 markerX = 14 * 8 - min(sSurf->distance, COURSE_LENGTH) * (11 * 8) / COURSE_LENGTH;
     u32 *pixels = (u32 *)GetWindowAttribute(WIN_HUD, WINDOW_TILE_DATA);
 
@@ -346,6 +352,7 @@ static void DrawHud(void)
 
     for (u32 y = 0; y < 8; y++)
     {
+        // Draw it pixel by pixel so it can sit between tiles.
         u32 source = sSpriteTiles[0xFE * 8 + y];
         for (u32 x = 0; x < 8; x++)
         {
@@ -374,6 +381,7 @@ static void DrawHud(void)
 
 static void ShowOverlay(const u8 *heading, const u8 *text)
 {
+    // Make the pause box fit the text, then round it to an even number of tiles.
     u32 headingWidth = GetStringWidth(FONT_NORMAL, heading, 0);
     u32 textWidth = GetStringWidth(FONT_SMALL, text, 0);
     u32 headingHeight = GetFontAttribute(FONT_NORMAL, FONTATTR_MAX_LETTER_HEIGHT);
@@ -399,6 +407,7 @@ static void HideOverlay(void)
 {
     if (sSurf->overlayBorderVisible)
     {
+        // The frame isnt part of the window, so clear it from the tilemap too.
         u32 left = GetWindowAttribute(WIN_OVERLAY, WINDOW_TILEMAP_LEFT) - 1;
         u32 top = GetWindowAttribute(WIN_OVERLAY, WINDOW_TILEMAP_TOP) - 1;
         u32 right = left + GetWindowAttribute(WIN_OVERLAY, WINDOW_WIDTH) + 1;
@@ -414,6 +423,7 @@ static void HideOverlay(void)
 
 static u16 TilemapIndex(u8 x, u8 y)
 {
+    // The 64 columns are really two 32x32 screens next to each other.
     return (x / 32) * 1024 + y * 32 + (x % 32);
 }
 
@@ -425,6 +435,7 @@ static u16 IntroTile(u8 tile)
 
 static void DrawBeach(bool32 intro)
 {
+    // The shore art is only 20 tiles wide, so stretch the edge across the background.
     const u8 *map = intro ? sBeachIntro : sBeachOutro;
     u32 rows = intro ? sizeof(sBeachIntro) / 20 : sizeof(sBeachOutro) / 20;
 
@@ -435,8 +446,10 @@ static void DrawBeach(bool32 intro)
             u8 tile = 0xFF;
             if (y >= 7)
             {
+                // Leave some sky first, then keep using the last shore tile on the right.
                 u32 mapX = x < 5 ? 0 : min(19, x - 5);
                 u32 mapY = y - 7;
+                // Repeat the last two rows to fill the rest of this tall map.
                 if (mapY >= rows)
                     mapY = rows - 2 + (mapY - rows) % 2;
                 tile = map[mapY * 20 + mapX];
@@ -462,6 +475,7 @@ static void DrawBeach(bool32 intro)
 
 static void DrawWaveSlice(u8 column, u8 pattern)
 {
+    // Each pattern fills two columns and also saves the wave shape for the rider.
     u32 row, half;
     for (half = 0; half < 2; half++)
     {
@@ -470,6 +484,7 @@ static void DrawWaveSlice(u8 column, u8 pattern)
         sSurf->terrain[x] = WATER_TILE;
         for (row = 0; row < 8; row++)
         {
+            // Split each metatile into top and bottom tiles. Their IDs tell us the slope too.
             const u8 *metatile = sWaveMetatiles[sWavePatterns[pattern][row]];
             u8 top = metatile[half];
             u8 bottom = metatile[half + 2];
@@ -490,19 +505,23 @@ static void DrawWaveSlice(u8 column, u8 pattern)
 
 static u8 NextWavePattern(void)
 {
+    // Some values here are just markers and dont point to a real wave.
     u8 pattern = sWaveSequence[sSurf->sequence];
     switch (pattern)
     {
     case 0xFE:
+        // Pick another sequence until the last stretch, then use Yellow's ending.
         if ((sSurf->distance >> 16) == 22)
             sSurf->sequence = 0x6A; // Yellow's final wave
         else if ((sSurf->distance >> 16) < 22)
             sSurf->sequence = sSequenceStarts[Random() % ARRAY_COUNT(sSequenceStarts)];
         return 0;
     case 0xFF:
+        // Start the wave sequence over when it hits the end.
         sSurf->sequence = 0;
         return 0;
     case 0xFD:
+        // This one just makes a gap, so dont move the sequence forward yet.
         return 0;
     default:
         sSurf->sequence++;
@@ -512,6 +531,7 @@ static u8 NextWavePattern(void)
 
 static void ResetRun(void)
 {
+    // Reset everything for a fresh run.
     u32 i;
     StopResultAudio();
     sSurf->distance = 0;
@@ -546,6 +566,7 @@ static void ResetRun(void)
     SetWindowAttribute(WIN_HUD, WINDOW_PALETTE_NUM, 1);
     SetHudLayout();
     CpuFill16(0, sSurf->worldTilemap, sizeof(sSurf->worldTilemap));
+    // Start with flat water. Each slice fills two columns at a time.
     for (i = 0; i < WORLD_COLUMNS; i += 2)
         DrawWaveSlice(i, 0);
     CopyBgTilemapBufferToVram(1);
@@ -556,6 +577,7 @@ static void ResetRun(void)
 static void StartRun(void)
 {
     ResetRun();
+    // Let the start banner do its thing before the run starts.
     sSurf->screen = SCREEN_START;
 }
 
@@ -570,6 +592,7 @@ static void SetSpriteVisual(struct Sprite *sprite, const struct SubspriteTable *
 
 static void UpdateSprites(void)
 {
+    // Figure out what each sprite should look like on this screen.
     struct Sprite *surfer = &gSprites[sSurf->surferSprite];
     struct Sprite *banner = &gSprites[sSurf->bannerSprite];
     struct Sprite *bonus = &gSprites[sSurf->bonusSprite];
@@ -642,6 +665,7 @@ static void UpdateSprites(void)
 
 static void CopyObjectTile(u32 *dest, const u32 *source, bool32 flip)
 {
+    // OBJ uses these colors the other way around, and sometimes we need to flip the tile.
     for (u32 y = 0; y < 8; y++)
     {
         u32 row = 0;
@@ -706,6 +730,7 @@ static u8 CreateEffectSprite(const struct SubspriteTable *parts, u16 tile, u8 pa
 
 static void CreateGameSprites(void)
 {
+    // Load the art and colors, then make the sprites we use in the minigame.
     static const u8 colorMap[16] = { 3, 1, 2, 0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
     u16 colors[16];
     const struct SpriteSheet sheet = { sSpriteTiles, sizeof(sSpriteTiles), SURF_TAG };
@@ -768,6 +793,7 @@ static void CB2_InitSurfing(void)
     ScanlineEffect_Stop();
     ScanlineEffect_Clear();
     SetGpuReg(REG_OFFSET_DISPCNT, 0);
+    // Clear out the field graphics since this minigame takes over the BGs, windows and sprites.
     ResetTasks();
     ResetSpriteData();
     FreeAllSpritePalettes();
@@ -832,6 +858,7 @@ static void CB2_InitSurfing(void)
 static void BeginExit(void)
 {
     StopResultAudio();
+    // The event script checks these after we get back to the field.
     gSpecialVar_Result = sSurf->score;
     gSpecialVar_0x8005 = sSurf->completed;
     gSpecialVar_0x8006 = GetBestScore();
@@ -858,6 +885,7 @@ static void LoadResultsBorder(void)
 
 static void DrawOverlayBorder(void)
 {
+    // The border goes one tile around the window and gets drawn right on BG0.
     u16 tile = (1 << 12) | RESULTS_BORDER_TILE;
     u32 left = GetWindowAttribute(WIN_OVERLAY, WINDOW_TILEMAP_LEFT) - 1;
     u32 top = GetWindowAttribute(WIN_OVERLAY, WINDOW_TILEMAP_TOP) - 1;
@@ -901,6 +929,7 @@ static void PrintResultValue(u8 y, const u8 *label, u16 value)
 static void DrawResults(void)
 {
     FillWindowPixelBuffer(WIN_OVERLAY, PIXEL_FILL(1));
+    // Show each row as the tally gets to it.
     if (sSurf->tallyPhase >= 1)
         PrintResultValue(2, sTextHpLeft, sSurf->tallyHp);
     if (sSurf->tallyPhase >= 2)
@@ -923,6 +952,7 @@ static void DrawResults(void)
 
 static void ShowResults(void)
 {
+    // Save the new best if there is one, then get the tally ready.
     sSurf->score = min(MAX_SCORE, sSurf->hp + sSurf->radness);
     sSurf->newRecord = sSurf->score > GetBestScore();
     if (sSurf->newRecord)
@@ -934,6 +964,7 @@ static void ShowResults(void)
     sSurf->tallyHp = sSurf->hp;
     sSurf->tallyRadness = sSurf->radness;
     sSurf->tallyTotal = 0;
+    // Phases 4 and 6 count the points up, the rest are pauses between rows.
     sSurf->tallyPhase = 0;
     sSurf->tallyDelay = 32;
     sSurf->tallyTickDelay = 0;
@@ -972,6 +1003,7 @@ static void StartResultCry(void)
     if (sSurf->celebrationCryStarted)
         return;
     sSurf->celebrationCryStarted = TRUE;
+    // Stop a tally tick if the player skipped the count before the cry starts.
     m4aSongNumStop(SE_BALL_TRAY_BALL); // End any tally tick when the count is skipped. SE_DEX_SCROLL was too quiet.
     PlayCry_NormalNoDucking(SPECIES_PIKACHU, 0, CRY_VOLUME, CRY_PRIORITY_NORMAL);
     sSurf->resultSoundPending = TRUE;
@@ -997,6 +1029,7 @@ static void StartCelebration(void)
 
 static void UpdateResults(void)
 {
+    // Count the HP and trick points into the total. A skips right to the celebration.
     if (JOY_NEW(A_BUTTON))
     {
         sSurf->tallyHp = 0;
@@ -1013,6 +1046,7 @@ static void UpdateResults(void)
     }
     if (sSurf->tallyPhase == 4 || sSurf->tallyPhase == 6)
     {
+        // Add up to 99 points each frame so the score ticks upward.
         u16 *remaining = sSurf->tallyPhase == 4 ? &sSurf->tallyHp : &sSurf->tallyRadness;
         u16 amount = min(99, *remaining);
         if (amount != 0)
@@ -1048,6 +1082,7 @@ static void UpdateResults(void)
 
 static s16 SurfaceHeight(u32 worldX, u8 *terrain)
 {
+    // Work out the wave height here from its 8 pixel samples.
     u8 col = (worldX / 8) % WORLD_COLUMNS;
     u8 pixel = worldX % 8;
     s16 height = sSurf->heights[col];
@@ -1077,6 +1112,7 @@ static void UpdateEffects(void)
 
 static void RotateBoard(void)
 {
+    // Only update every other frame, and each direction takes a different time to flip.
     if (sSurf->frames % 2 != 0)
         return;
     if (JOY_HELD(DPAD_LEFT))
@@ -1086,6 +1122,7 @@ static void RotateBoard(void)
         {
             sSurf->leftFrames = 0;
             sSurf->flips = min(3, sSurf->flips + 1);
+            // Keep track of directions so doing both ways can get a different bonus.
             sSurf->flipFlags |= 1;
         }
         if (++sSurf->pose > 14)
@@ -1122,6 +1159,7 @@ static void Land(u8 terrain)
         ratings = crest;
     if (sSurf->pose <= 7)
         rating = ratings[sSurf->pose - 1];
+    // The pose and wave decide if this is a good landing or a wipeout.
     if (rating == 3)
     {
         sSurf->speed = INITIAL_SPEED;
@@ -1136,6 +1174,7 @@ static void Land(u8 terrain)
     sSurf->speed = max(0, (s16)sSurf->speed - rating * 64);
     if (sSurf->flips)
     {
+        // Same way flips use the normal bonus, doing both ways gets a special one.
         u16 bonus = sSameFlipScores[sSurf->flips];
         if (sSurf->flipFlags == 3)
             bonus = sSurf->flips >= 3 ? 500 : 180;
@@ -1149,12 +1188,14 @@ static void Land(u8 terrain)
 
 static void UpdateRider(void)
 {
+    // Handle jumps, landings, and the automatic hop off a fast wave.
     u32 worldX = (sSurf->scroll >> 8) + SURFER_X;
     u8 terrain;
     s16 height = SurfaceHeight(worldX, &terrain);
     if (sSurf->riderState == JUMPING)
     {
         RotateBoard();
+        // It gets smaller on the way up, then bigger again until Pikachu lands.
         if (!sSurf->descending)
         {
             if (sSurf->jumpMagnitude == 0)
@@ -1193,6 +1234,7 @@ static void UpdateRider(void)
     sSurf->pose = terrain == RISING_TILE || terrain == CREST_TILE ? 6 : terrain == FALLING_TILE ? 2 : 4;
     if (terrain == CREST_TILE && worldX % 8 >= 3 && worldX % 8 < 5 && (sSurf->speed >> 5) >= 10)
     {
+        // Hitting a crest at enough speed gives you an automatic jump.
         sSurf->riderState = JUMPING;
         sSurf->jumpMagnitude = (sSurf->speed >> 5) * 256;
         sSurf->descending = FALSE;
@@ -1208,11 +1250,13 @@ static void UpdateRider(void)
 
 static void ScrollWater(u16 speed, bool32 generateWaves)
 {
+    // Scroll the looping water and add more waves as new columns come into view.
+    // scroll is fixed point, so 0x1000 moves us one tile column.
     u32 oldSlice = sSurf->scroll >> 12;
     sSurf->scroll += speed;
     if ((sSurf->scroll >> 12) != oldSlice)
     {
-        // Generate a pair of columns just beyond the right edge of the viewport.
+        // Add the next pair of columns just off the right side of the screen.
         u8 column = (((sSurf->scroll >> 12) * 2) + 30) % WORLD_COLUMNS;
         DrawWaveSlice(column, generateWaves ? NextWavePattern() : 0);
         CopyBgTilemapBufferToVram(1);
@@ -1234,9 +1278,11 @@ static void UpdateWake(void)
 
 static void UpdateRun(void)
 {
+    // Do one frame of the run and see if we reached the end or ran out of HP.
     sSurf->frames++;
     UpdateRider();
     UpdateWake();
+    // The water scrolls at a fixed rate. Speed changes how fast you get through the course.
     ScrollWater(384, TRUE); // 1.5 pixels/frame, independently of speed.
     sSurf->distance += sSurf->speed;
     sSurf->hp--;
@@ -1257,6 +1303,7 @@ static void UpdateCoast(void)
     sSurf->sceneFrame++;
     UpdateRider();
     UpdateWake();
+    // Move to shore faster and stop making new waves.
     ScrollWater(9 * 256, FALSE);
     if (sSurf->sceneFrame >= 192)
     {
@@ -1275,7 +1322,7 @@ static void UpdateCoast(void)
 
 static void UpdateMusicTempo(void)
 {
-    // Yellow's table is indexed by floor(speed / 0.5) in 8.8 fixed point.
+    // Yellow's table is indexed by floor(speed/0.5) in 8.8 fixed point.
     static const u16 tempos[] = { 117, 109, 101, 93, 85 };
     u16 scale = 256;
 
@@ -1292,12 +1339,14 @@ static void UpdateMusicTempo(void)
                 return;
         scale = (256 * 117 + tempos[min(4, sSurf->speed >> 7)] / 2) / tempos[min(4, sSurf->speed >> 7)];
     }
+    // Put the music back to normal outside the run. Pause and quit returned above.
     if (gMPlayInfo_BGM.tempoU != scale)
         m4aMPlayTempoControl(&gMPlayInfo_BGM, scale);
 }
 
 static void CB2_Surfing(void)
 {
+    // Wait for fades to finish before changing the screen state.
     if (!gPaletteFade.active)
     {
         if (sSurf->screen != SCREEN_PAUSE && sSurf->screen != SCREEN_CONFIRM_QUIT && sSurf->screen != SCREEN_EXIT)
@@ -1305,16 +1354,19 @@ static void CB2_Surfing(void)
         switch (sSurf->screen)
         {
         case SCREEN_INTRO:
+            // The intro runs by itself. A/Start skips it and B quits.
             if (JOY_NEW(B_BUTTON))
                 BeginExit();
             else if (JOY_NEW(A_BUTTON | START_BUTTON) || ++sSurf->sceneFrame >= (DISPLAY_WIDTH + 32 - SURFER_X) * 2)
                 StartRun();
             break;
         case SCREEN_START:
+            // Show the start banner for a bit before actually starting the run.
             if (++sSurf->sceneFrame >= 64)
                 sSurf->screen = SCREEN_PLAY;
             break;
         case SCREEN_PLAY:
+            // START pauses things. HP and distance only change while we're in this state.
             if (JOY_NEW(START_BUTTON))
             {
                 sSurf->screen = SCREEN_PAUSE;
@@ -1325,6 +1377,7 @@ static void CB2_Surfing(void)
                 UpdateRun();
             break;
         case SCREEN_PAUSE:
+            // A/Start gets back to surfing. B asks if you really want to quit.
             if (JOY_NEW(B_BUTTON))
             {
                 sSurf->screen = SCREEN_CONFIRM_QUIT;
@@ -1337,6 +1390,7 @@ static void CB2_Surfing(void)
             }
             break;
         case SCREEN_CONFIRM_QUIT:
+            // B/Start goes back to pause, A really quits.
             if (JOY_NEW(B_BUTTON | START_BUTTON))
             {
                 sSurf->screen = SCREEN_PAUSE;
@@ -1351,6 +1405,7 @@ static void CB2_Surfing(void)
             UpdateCoast();
             break;
         case SCREEN_BEACH:
+            // Slide the beach in after the coast, then show the results.
             sSurf->sceneFrame++;
             ChangeBgX(1, max(0, 192 - sSurf->sceneFrame * 4) * 256, BG_COORD_SET);
             if (sSurf->sceneFrame >= 80)
@@ -1358,6 +1413,7 @@ static void CB2_Surfing(void)
             break;
         case SCREEN_GAMEOVER:
         {
+            // Leave the wipeout on screen for a bit before showing retry and quit.
             u8 terrain;
             sSurf->surferY = SurfaceHeight((sSurf->scroll >> 8) + SURFER_X, &terrain) * 256;
             if (sSurf->riderState == CRASHED && sSurf->stateTimer)
@@ -1384,6 +1440,7 @@ static void CB2_Surfing(void)
             break;
         }
         case SCREEN_RESULTS:
+            // Wait till the tally and celebration are done before letting you replay or quit.
             UpdateResultAudio();
             if (sSurf->tallyPhase < 8)
                 UpdateResults();
@@ -1393,6 +1450,7 @@ static void CB2_Surfing(void)
                 StartRun();
             break;
         case SCREEN_EXIT:
+            // Fade out, then give back all the stuff the minigame took over.
             SetVBlankCallback(NULL);
             ScanlineEffect_Stop();
             ScanlineEffect_Clear();
@@ -1407,7 +1465,8 @@ static void CB2_Surfing(void)
             return;
         }
     }
-    UpdateMusicTempo();
+    // Keep updating the picture and music even while fading.
+     UpdateMusicTempo();
     UpdateRippleBuffer(gScanlineEffect.srcBuffer);
     AnimateSprites();
     UpdateSprites();
