@@ -36,13 +36,15 @@
 #define RESULTS_BORDER_TILE 440
 #define WORLD_COLUMNS 64
 #define FLAT_HEIGHT (116 - 8)
+#define WAVE_TOP_Y (7 * 8)
+#define HUD_TOP_Y (17 * 8)
 #define SKY_TILE 0
 #define WATER_TILE 11
 #define RISING_TILE 6
 #define FALLING_TILE 7
 #define CREST_TILE 20
 
-enum { SCREEN_INTRO, SCREEN_START, SCREEN_PLAY, SCREEN_PAUSE, SCREEN_COAST, SCREEN_BEACH, SCREEN_GAMEOVER, SCREEN_RESULTS, SCREEN_EXIT };
+enum { SCREEN_INTRO, SCREEN_START, SCREEN_PLAY, SCREEN_PAUSE, SCREEN_CONFIRM_QUIT, SCREEN_COAST, SCREEN_BEACH, SCREEN_GAMEOVER, SCREEN_RESULTS, SCREEN_EXIT };
 enum { RIDING, JUMPING, LANDING, CRASHED };
 enum { WIN_HUD, WIN_OVERLAY };
 
@@ -89,10 +91,13 @@ struct SurfingGame
     u8 sprayPalette;
     u8 tallyPhase;
     u8 tallyDelay;
+    u8 tallyTickDelay;
     bool8 descending;
     bool8 completed;
     bool8 newRecord;
     bool8 overlayBorderVisible;
+    bool8 celebrationCryStarted;
+    bool8 resultSoundPending;
 };
 
 static EWRAM_DATA struct SurfingGame *sSurf = NULL;
@@ -203,10 +208,13 @@ static const u8 sPoseTiles[7][2] =
 static const u8 sSequenceStarts[] = { 0x01, 0x0E, 0x1A, 0x29, 0x32, 0x40, 0x4D, 0x5C };
 static const u16 sSameFlipScores[] = { 0, 50, 150, 350 };
 
-static const u8 sTextPaused[] = _("PAUSED\n\n{A_BUTTON} / {START_BUTTON} RESUME\n{B_BUTTON} QUIT");
+static const u8 sTextPausedHeading[] = _("PAUSED");
+static const u8 sTextPaused[] = _("{A_BUTTON} RESUME\n{B_BUTTON} QUIT");
+static const u8 sTextConfirmQuitHeading[] = _("QUIT THIS RUN?");
+static const u8 sTextConfirmQuit[] = _("{A_BUTTON} YES\n{B_BUTTON} NO");
 static const u8 sTextGameOver[] = _("OUT OF HP");
 static const u8 sTextNewRecord[] = _("NEW PERSONAL BEST!");
-static const u8 sTextReturn[] = _("{A_BUTTON} PLAY AGAIN    {B_BUTTON} RETURN");
+static const u8 sTextReturn[] = _("{A_BUTTON} PLAY AGAIN    {B_BUTTON} QUIT");
 static const u8 sTextBest[] = _("BEST");
 static const u8 sTextHpLeft[] = _("HP LEFT");
 static const u8 sTextRadnessScore[] = _("RADNESS");
@@ -224,6 +232,7 @@ static void CB2_InitSurfing(void);
 static void CB2_Surfing(void);
 static void HideOverlay(void);
 static void DrawOverlayBorder(void);
+static void StopResultAudio(void);
 static void ShowResults(void);
 static void LoadResultsBorder(void);
 static void StartRun(void);
@@ -260,8 +269,13 @@ static void UpdateRippleBuffer(u8 buffer)
 {
     for (u32 y = 0; y < DISPLAY_HEIGHT; y++)
     {
-        u32 phase = y + (y >= 16 ? sSurf->animationFrame / 2 : 0);
-        s16 offset = sSurf->screen == SCREEN_PLAY ? sRipple[phase % ARRAY_COUNT(sRipple)] : 0;
+        s16 offset = 0;
+        if (sSurf->screen == SCREEN_PLAY && y >= WAVE_TOP_Y && y < HUD_TOP_Y)
+        {
+            u32 phase = y + sSurf->animationFrame / 2;
+            offset = sRipple[phase % ARRAY_COUNT(sRipple)];
+            offset = max(WAVE_TOP_Y - (s32)y, min(offset, HUD_TOP_Y - 1 - (s32)y));
+        }
         gScanlineEffectRegBuffers[buffer][y] = offset & 0x1FF;
     }
     gScanlineEffectRegBuffers[buffer][DISPLAY_HEIGHT] = 0;
@@ -307,6 +321,17 @@ static void Print(u8 window, u8 x, u8 y, const u8 *text)
     AddTextPrinterParameterized(window, FONT_SMALL, text, x, y, TEXT_SKIP_DRAW, NULL);
 }
 
+static void SetHudLayout(void)
+{
+    // Use the full white bar while keeping the gameplay HUD near its bottom. 
+    // (otherwise weird water tiles are visible under waves and I dont want to rewrite that lol)
+    ClearWindowTilemap(WIN_HUD);
+    SetWindowAttribute(WIN_HUD, WINDOW_TILEMAP_TOP, 17);
+    gWindows[WIN_HUD].window.height = 3;
+    PutWindowTilemap(WIN_HUD);
+    CopyWindowToVram(WIN_HUD, COPYWIN_MAP);
+}
+
 static void DrawHud(void)
 {
     u32 digit = 1000;
@@ -314,10 +339,10 @@ static void DrawHud(void)
     u32 *pixels = (u32 *)GetWindowAttribute(WIN_HUD, WINDOW_TILE_DATA);
 
     FillWindowPixelBuffer(WIN_HUD, PIXEL_FILL(3));
-    CopyToWindowPixelBuffer(WIN_HUD, sBackgroundTiles + 0x15 * 8, 2 * TILE_SIZE_4BPP, 1);
-    CopyToWindowPixelBuffer(WIN_HUD, sBackgroundTiles + 0x17 * 8, 2 * TILE_SIZE_4BPP, 31);
+    CopyToWindowPixelBuffer(WIN_HUD, sBackgroundTiles + 0x15 * 8, 2 * TILE_SIZE_4BPP, 31);
+    CopyToWindowPixelBuffer(WIN_HUD, sBackgroundTiles + 0x17 * 8, 2 * TILE_SIZE_4BPP, 61);
     for (u32 x = 3; x <= 14; x++)
-        CopyToWindowPixelBuffer(WIN_HUD, sBackgroundTiles + 0x19 * 8, TILE_SIZE_4BPP, 30 + x);
+        CopyToWindowPixelBuffer(WIN_HUD, sBackgroundTiles + 0x19 * 8, TILE_SIZE_4BPP, 60 + x);
 
     for (u32 y = 0; y < 8; y++)
     {
@@ -327,14 +352,14 @@ static void DrawHud(void)
             u32 color = (source >> (x * 4)) & 15;
             u32 destX = markerX + x;
             u32 shift = (destX % 8) * 4;
-            u32 *dest = &pixels[(30 + destX / 8) * 8 + y];
+            u32 *dest = &pixels[(60 + destX / 8) * 8 + y];
             if (color != 3)
                 *dest = (*dest & ~(15u << shift)) | (color << shift);
         }
     }
-    CopyToWindowPixelBuffer(WIN_HUD, sBackgroundTiles + 0x1B * 8, 2 * TILE_SIZE_4BPP, 48);
-    for (u32 x = 22; x < 26; x++, digit /= 10)
-        CopyToWindowPixelBuffer(WIN_HUD, sSpriteTiles + (0xD0 + sSurf->hp / digit % 10) * 8, TILE_SIZE_4BPP, 30 + x);
+    CopyToWindowPixelBuffer(WIN_HUD, sBackgroundTiles + 0x1B * 8, 2 * TILE_SIZE_4BPP, 80);
+    for (u32 x = 23; x < 27; x++, digit /= 10)
+        CopyToWindowPixelBuffer(WIN_HUD, sSpriteTiles + (0xD0 + sSurf->hp / digit % 10) * 8, TILE_SIZE_4BPP, 60 + x);
 
     for (u32 i = 0; i < 90 * TILE_SIZE_4BPP / sizeof(u32); i++)
     {
@@ -347,18 +372,24 @@ static void DrawHud(void)
     CopyWindowToVram(WIN_HUD, COPYWIN_GFX);
 }
 
-static void ShowOverlay(const u8 *text)
+static void ShowOverlay(const u8 *heading, const u8 *text)
 {
-    u32 width = min(28, (GetStringWidth(FONT_SMALL, text, 0) + 16 + 7) / 8);
-    u32 height = (4 * GetFontAttribute(FONT_SMALL, FONTATTR_MAX_LETTER_HEIGHT) + 8 + 7) / 8;
+    u32 headingWidth = GetStringWidth(FONT_NORMAL, heading, 0);
+    u32 textWidth = GetStringWidth(FONT_SMALL, text, 0);
+    u32 headingHeight = GetFontAttribute(FONT_NORMAL, FONTATTR_MAX_LETTER_HEIGHT);
+    u32 textY = 4 + headingHeight + 8;
+    u32 width = min(28, (max(headingWidth, textWidth) + 16 + 7) / 8);
+    u32 height = (textY + 2 * GetFontAttribute(FONT_SMALL, FONTATTR_MAX_LETTER_HEIGHT) + 4 + 7) / 8;
 
+    width = (width + 1) & ~1u;
     HideOverlay();
-    SetWindowAttribute(WIN_OVERLAY, WINDOW_TILEMAP_LEFT, (30 - width) / 2);
-    SetWindowAttribute(WIN_OVERLAY, WINDOW_TILEMAP_TOP, (17 - height) / 2);
+    SetWindowAttribute(WIN_OVERLAY, WINDOW_TILEMAP_LEFT, (DISPLAY_WIDTH / 8 - width) / 2);
+    SetWindowAttribute(WIN_OVERLAY, WINDOW_TILEMAP_TOP, 4);
     gWindows[WIN_OVERLAY].window.width = width;
     gWindows[WIN_OVERLAY].window.height = height;
     FillWindowPixelBuffer(WIN_OVERLAY, PIXEL_FILL(1));
-    Print(WIN_OVERLAY, 8, 4, text);
+    AddTextPrinterParameterized(WIN_OVERLAY, FONT_NORMAL, heading, (width * 8 - headingWidth) / 2, 4, TEXT_SKIP_DRAW, NULL);
+    Print(WIN_OVERLAY, 8, textY, text);
     PutWindowTilemap(WIN_OVERLAY);
     DrawOverlayBorder();
     CopyWindowToVram(WIN_OVERLAY, COPYWIN_FULL);
@@ -482,6 +513,7 @@ static u8 NextWavePattern(void)
 static void ResetRun(void)
 {
     u32 i;
+    StopResultAudio();
     sSurf->distance = 0;
     sSurf->scroll = 0;
     sSurf->speed = INITIAL_SPEED;
@@ -512,7 +544,7 @@ static void ResetRun(void)
     SetWindowAttribute(WIN_OVERLAY, WINDOW_TILEMAP_TOP, 3);
     gWindows[WIN_OVERLAY].window.height = 12;
     SetWindowAttribute(WIN_HUD, WINDOW_PALETTE_NUM, 1);
-    PutWindowTilemap(WIN_HUD);
+    SetHudLayout();
     CpuFill16(0, sSurf->worldTilemap, sizeof(sSurf->worldTilemap));
     for (i = 0; i < WORLD_COLUMNS; i += 2)
         DrawWaveSlice(i, 0);
@@ -708,7 +740,8 @@ static void CreateGameSprites(void)
     gSprites[sSurf->surferSprite].animPaused = TRUE;
     for (u32 i = 0; i < ARRAY_COUNT(sSurf->cloudSprites); i++)
     {
-        u8 id = CreateSprite(&sSpriteTemplate, 48 + i * 144, 36 + i * 8, 1);
+        u8 y = 14 + i * 8;
+        u8 id = CreateSprite(&sSpriteTemplate, 48 + i * 144, y, 1);
         sSurf->cloudSprites[i] = id;
         SetSubspriteTables(&gSprites[id], sCloudPartsTable);
         gSprites[id].subspriteMode = SUBSPRITES_IGNORE_PRIORITY;
@@ -798,6 +831,7 @@ static void CB2_InitSurfing(void)
 
 static void BeginExit(void)
 {
+    StopResultAudio();
     gSpecialVar_Result = sSurf->score;
     gSpecialVar_0x8005 = sSurf->completed;
     gSpecialVar_0x8006 = GetBestScore();
@@ -902,13 +936,16 @@ static void ShowResults(void)
     sSurf->tallyTotal = 0;
     sSurf->tallyPhase = 0;
     sSurf->tallyDelay = 32;
+    sSurf->tallyTickDelay = 0;
+    sSurf->celebrationCryStarted = FALSE;
+    sSurf->resultSoundPending = FALSE;
     HideOverlay();
     SetWindowAttribute(WIN_OVERLAY, WINDOW_TILEMAP_LEFT, 5);
     gWindows[WIN_OVERLAY].window.width = 20;
     SetWindowAttribute(WIN_OVERLAY, WINDOW_TILEMAP_TOP, 1);
     gWindows[WIN_OVERLAY].window.height = 9;
     SetWindowAttribute(WIN_HUD, WINDOW_PALETTE_NUM, 15);
-    PutWindowTilemap(WIN_HUD);
+    SetHudLayout();
     DrawResults();
 }
 
@@ -925,11 +962,37 @@ static void FinishRun(bool32 completed)
     }
 }
 
+static void StopResultAudio(void)
+{
+    sSurf->resultSoundPending = FALSE;
+}
+
+static void StartResultCry(void)
+{
+    if (sSurf->celebrationCryStarted)
+        return;
+    sSurf->celebrationCryStarted = TRUE;
+    m4aSongNumStop(SE_BALL_TRAY_BALL); // End any tally tick when the count is skipped. SE_DEX_SCROLL was too quiet.
+    PlayCry_NormalNoDucking(SPECIES_PIKACHU, 0, CRY_VOLUME, CRY_PRIORITY_NORMAL);
+    sSurf->resultSoundPending = TRUE;
+}
+
+static void UpdateResultAudio(void)
+{
+    if (IsCryPlaying())
+        return;
+    if (sSurf->resultSoundPending)
+    {
+        PlaySE(sSurf->newRecord ? SE_APPLAUSE : SE_SUCCESS);
+        sSurf->resultSoundPending = FALSE;
+    }
+}
+
 static void StartCelebration(void)
 {
+    StartResultCry();
     sSurf->tallyPhase = 8;
     sSurf->animationFrame = 0;
-    PlayCry_NormalNoDucking(SPECIES_PIKACHU, 0, CRY_VOLUME, CRY_PRIORITY_NORMAL);
 }
 
 static void UpdateResults(void)
@@ -952,14 +1015,25 @@ static void UpdateResults(void)
     {
         u16 *remaining = sSurf->tallyPhase == 4 ? &sSurf->tallyHp : &sSurf->tallyRadness;
         u16 amount = min(99, *remaining);
+        if (amount != 0)
+        {
+            if (sSurf->tallyTickDelay == 0)
+            {
+                PlaySE(SE_BALL_TRAY_BALL);
+                sSurf->tallyTickDelay = 5;
+            }
+            else
+            {
+                sSurf->tallyTickDelay--;
+            }
+        }
         *remaining -= amount;
         sSurf->tallyTotal = min(MAX_SCORE, sSurf->tallyTotal + amount);
         if (*remaining == 0)
         {
+            sSurf->tallyTickDelay = 0;
             sSurf->tallyPhase++;
             sSurf->tallyDelay = 64;
-            if (sSurf->tallyPhase == 7)
-                PlaySE(sSurf->newRecord ? SE_SUCCESS : SE_RG_POKE_JUMP_SUCCESS);
         }
     }
     else
@@ -1205,7 +1279,7 @@ static void UpdateMusicTempo(void)
     static const u16 tempos[] = { 117, 109, 101, 93, 85 };
     u16 scale = 256;
 
-    if (sSurf->screen == SCREEN_PAUSE)
+    if (sSurf->screen == SCREEN_PAUSE || sSurf->screen == SCREEN_CONFIRM_QUIT)
         return;
     if (sSurf->screen == SCREEN_PLAY || sSurf->screen == SCREEN_START)
     {
@@ -1226,7 +1300,7 @@ static void CB2_Surfing(void)
 {
     if (!gPaletteFade.active)
     {
-        if (sSurf->screen != SCREEN_PAUSE && sSurf->screen != SCREEN_EXIT)
+        if (sSurf->screen != SCREEN_PAUSE && sSurf->screen != SCREEN_CONFIRM_QUIT && sSurf->screen != SCREEN_EXIT)
             UpdateEffects();
         switch (sSurf->screen)
         {
@@ -1244,18 +1318,33 @@ static void CB2_Surfing(void)
             if (JOY_NEW(START_BUTTON))
             {
                 sSurf->screen = SCREEN_PAUSE;
-                ShowOverlay(sTextPaused);
+                ShowOverlay(sTextPausedHeading, sTextPaused);
+                PlaySE(SE_WIN_OPEN);
             }
             else
                 UpdateRun();
             break;
         case SCREEN_PAUSE:
             if (JOY_NEW(B_BUTTON))
-                BeginExit();
+            {
+                sSurf->screen = SCREEN_CONFIRM_QUIT;
+                ShowOverlay(sTextConfirmQuitHeading, sTextConfirmQuit);
+            }
             else if (JOY_NEW(A_BUTTON | START_BUTTON))
             {
                 HideOverlay();
                 sSurf->screen = SCREEN_PLAY;
+            }
+            break;
+        case SCREEN_CONFIRM_QUIT:
+            if (JOY_NEW(B_BUTTON | START_BUTTON))
+            {
+                sSurf->screen = SCREEN_PAUSE;
+                ShowOverlay(sTextPausedHeading, sTextPaused);
+            }
+            else if (JOY_NEW(A_BUTTON))
+            {
+                BeginExit();
             }
             break;
         case SCREEN_COAST:
@@ -1277,7 +1366,7 @@ static void CB2_Surfing(void)
             if (++sSurf->sceneFrame == 128)
             {
                 SetWindowAttribute(WIN_HUD, WINDOW_PALETTE_NUM, 15);
-                PutWindowTilemap(WIN_HUD);
+                SetHudLayout();
                 FillWindowPixelBuffer(WIN_HUD, PIXEL_FILL(1));
                 Print(WIN_HUD, 4, 0, sTextGameOver);
                 Print(WIN_HUD, 4, 12, sTextReturn);
@@ -1295,6 +1384,7 @@ static void CB2_Surfing(void)
             break;
         }
         case SCREEN_RESULTS:
+            UpdateResultAudio();
             if (sSurf->tallyPhase < 8)
                 UpdateResults();
             else if (JOY_NEW(B_BUTTON))
