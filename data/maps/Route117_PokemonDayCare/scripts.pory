@@ -31,8 +31,9 @@ script IntroScript{
     msgbox("Fine, we'll raise your Ditto and\nVaporeon for a while.\pCome back for them later.\n", MSGBOX_DEFAULT)
     waitmessage
     fadescreenswapbuffers(FADE_TO_BLACK, 24)
-    warp(MAP_DAYCAREBASE, 20, 44)
     setvar(VAR_TEMP_A, 1)
+    warp(MAP_DAYCAREBASE, 20, 44)
+    waitstate
     release
     end
 

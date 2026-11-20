@@ -268,6 +268,8 @@ void SetPlayerAvatarFromScript(struct ScriptContext *ctx)
     if (!IsSpeciesValidTransformation(speciesId))
         return;
 
+    Script_RequestEffects(SCREFF_V1 | SCREFF_SAVE | SCREFF_HARDWARE);
+
     gSaveBlock2Ptr->pokemonAvatarSpecies = speciesId;
     VarSet(VAR_TRANSFORM_MON, speciesId); 
 
@@ -276,8 +278,13 @@ void SetPlayerAvatarFromScript(struct ScriptContext *ctx)
     if (PlayerIsDitto())
         TransformDittoBoxMon(speciesId);
 
-    BeginPlayerTransformEffect(TRANSFORM_TYPE_PLAYER_SPECIES, TRUE);
+    BeginPlayerTransformEffect(TRANSFORM_TYPE_PLAYER_SPECIES, FALSE);
     PlaySE(SE_M_TELEPORT);
+}
+
+bool8 IsPlayerTransformEffectFinished(void)
+{
+    return !FuncIsActiveTask(UpdatePlayerTransformAnimation);
 }
 
 void SetPlayerAvatarTransformation(u16 speciesId, bool8 UnlockPlayerFieldControls)

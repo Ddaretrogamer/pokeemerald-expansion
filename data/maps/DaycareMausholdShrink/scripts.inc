@@ -1,616 +1,629 @@
 DaycareMausholdShrink_MapScripts::
+# 2 "data/maps/DaycareMausholdShrink/scripts.pory"
+	map_script MAP_SCRIPT_ON_TRANSITION, DaycareMausholdShrink_MapScripts_MAP_SCRIPT_ON_TRANSITION
 	.byte 0
+
+DaycareMausholdShrink_MapScripts_MAP_SCRIPT_ON_TRANSITION:
+# 2 "data/maps/DaycareMausholdShrink/scripts.pory"
+	applymovement LOCALID_PLAYER, DaycareMausholdShrink_MapScripts_MAP_SCRIPT_ON_TRANSITION_Movement_0
+	return
 
 
 FamilyofFour::
-# 4 "data/maps/DaycareMausholdShrink/scripts.pory"
-	lock
-# 5 "data/maps/DaycareMausholdShrink/scripts.pory"
-	faceplayer
 # 6 "data/maps/DaycareMausholdShrink/scripts.pory"
+	lock
+# 7 "data/maps/DaycareMausholdShrink/scripts.pory"
+	faceplayer
+# 8 "data/maps/DaycareMausholdShrink/scripts.pory"
 	goto_if_unset FLAG_FAM_FOUR, FamilyofFour_1
-# 103 "data/maps/DaycareMausholdShrink/scripts.pory"
-	speakername FamilyofFour_Text_0
-# 104 "data/maps/DaycareMausholdShrink/scripts.pory"
-	createfieldmugshot MUGSHOT_MAUSHOLD4, EMOTE_NORMAL
 # 105 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox FamilyofFour_Text_9, MSGBOX_DEFAULT
+	speakername FamilyofFour_Text_0
 # 106 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
+	createfieldmugshot MUGSHOT_MAUSHOLD4, EMOTE_NORMAL
 # 107 "data/maps/DaycareMausholdShrink/scripts.pory"
-	removefieldmugshot
+	msgbox FamilyofFour_Text_9, MSGBOX_DEFAULT
 # 108 "data/maps/DaycareMausholdShrink/scripts.pory"
+	waitmessage
+# 109 "data/maps/DaycareMausholdShrink/scripts.pory"
+	removefieldmugshot
+# 110 "data/maps/DaycareMausholdShrink/scripts.pory"
 	release
 	end
 
 FamilyofFour_1:
-# 8 "data/maps/DaycareMausholdShrink/scripts.pory"
-	speakername FamilyofFour_Text_0
-# 9 "data/maps/DaycareMausholdShrink/scripts.pory"
-	createfieldmugshot MUGSHOT_MAUSHOLD4, EMOTE_NORMAL
 # 10 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox FamilyofFour_Text_1, MSGBOX_DEFAULT
+	speakername FamilyofFour_Text_0
 # 11 "data/maps/DaycareMausholdShrink/scripts.pory"
-	dynmultichoice 0, 0, TRUE, 3, 0, DYN_MULTICHOICE_CB_NONE, FamilyofFour_Text_2, FamilyofFour_Text_3, FamilyofFour_Text_4
+	createfieldmugshot MUGSHOT_MAUSHOLD4, EMOTE_NORMAL
 # 12 "data/maps/DaycareMausholdShrink/scripts.pory"
+	msgbox FamilyofFour_Text_1, MSGBOX_DEFAULT
+# 13 "data/maps/DaycareMausholdShrink/scripts.pory"
+	dynmultichoice 0, 0, TRUE, 3, 0, DYN_MULTICHOICE_CB_NONE, FamilyofFour_Text_2, FamilyofFour_Text_3, FamilyofFour_Text_4
+# 14 "data/maps/DaycareMausholdShrink/scripts.pory"
 	compare VAR_RESULT, 0
 	goto_if_eq FamilyofFour_5
-# 70 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 72 "data/maps/DaycareMausholdShrink/scripts.pory"
 	compare VAR_RESULT, 1
 	goto_if_eq FamilyofFour_8
-# 85 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 87 "data/maps/DaycareMausholdShrink/scripts.pory"
 	compare VAR_RESULT, 2
 	goto_if_eq FamilyofFour_13
 	return
 
 FamilyofFour_5:
-# 14 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 16 "data/maps/DaycareMausholdShrink/scripts.pory"
 	goto_if_unset FLAG_FAMTHREE_WRONG, FamilyofFour_11
-# 49 "data/maps/DaycareMausholdShrink/scripts.pory"
-	speakername FamilyofFour_Text_0
-# 50 "data/maps/DaycareMausholdShrink/scripts.pory"
-	playse SE_PIN
 # 51 "data/maps/DaycareMausholdShrink/scripts.pory"
-	applymovement Maushold4, Common_Movement_ExclamationMark
+	speakername FamilyofFour_Text_0
 # 52 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmovement Maushold4
+	playse SE_PIN
 # 53 "data/maps/DaycareMausholdShrink/scripts.pory"
-	applymovement Maushold4, FamilyofFour_Movement_0
+	applymovement Maushold4, Common_Movement_ExclamationMark
 # 54 "data/maps/DaycareMausholdShrink/scripts.pory"
 	waitmovement Maushold4
 # 55 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox FamilyofFour_Text_6, MSGBOX_DEFAULT
+	applymovement Maushold4, FamilyofFour_Movement_0
 # 56 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
+	waitmovement Maushold4
 # 57 "data/maps/DaycareMausholdShrink/scripts.pory"
-	applymovement Maushold4, FamilyofFour_Movement_1
+	msgbox FamilyofFour_Text_6, MSGBOX_DEFAULT
 # 58 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmovement
+	waitmessage
 # 59 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox FamilyofFour_Text_7, MSGBOX_DEFAULT
+	applymovement Maushold4, FamilyofFour_Movement_1
 # 60 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
+	waitmovement
 # 61 "data/maps/DaycareMausholdShrink/scripts.pory"
-	removefieldmugshot
+	msgbox FamilyofFour_Text_7, MSGBOX_DEFAULT
 # 62 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_SUPPRESS_SPEAKER_NAME
-# 63 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_FAM_FOUR
-# 64 "data/maps/DaycareMausholdShrink/scripts.pory"
-	giveitem ITEM_POTION, 4
-# 65 "data/maps/DaycareMausholdShrink/scripts.pory"
-	clearflag FLAG_SUPPRESS_SPEAKER_NAME
-# 66 "data/maps/DaycareMausholdShrink/scripts.pory"
 	waitmessage
+# 63 "data/maps/DaycareMausholdShrink/scripts.pory"
+	removefieldmugshot
+# 64 "data/maps/DaycareMausholdShrink/scripts.pory"
+	setflag FLAG_SUPPRESS_SPEAKER_NAME
+# 65 "data/maps/DaycareMausholdShrink/scripts.pory"
+	setflag FLAG_FAM_FOUR
+# 66 "data/maps/DaycareMausholdShrink/scripts.pory"
+	giveitem ITEM_POTION, 4
 # 67 "data/maps/DaycareMausholdShrink/scripts.pory"
+	clearflag FLAG_SUPPRESS_SPEAKER_NAME
+# 68 "data/maps/DaycareMausholdShrink/scripts.pory"
+	waitmessage
+# 69 "data/maps/DaycareMausholdShrink/scripts.pory"
 	release
 	end
 
 FamilyofFour_8:
-# 72 "data/maps/DaycareMausholdShrink/scripts.pory"
-	speakername FamilyofFour_Text_0
-# 73 "data/maps/DaycareMausholdShrink/scripts.pory"
-	playse SE_PIN
 # 74 "data/maps/DaycareMausholdShrink/scripts.pory"
-	applymovement Maushold4, Common_Movement_ExclamationMark
+	speakername FamilyofFour_Text_0
 # 75 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmovement Maushold4
+	playse SE_PIN
 # 76 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox FamilyofFour_Text_8, MSGBOX_DEFAULT
+	applymovement Maushold4, Common_Movement_ExclamationMark
 # 77 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
+	waitmovement Maushold4
 # 78 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_FAM_FOUR
+	msgbox FamilyofFour_Text_8, MSGBOX_DEFAULT
 # 79 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_FAMFOUR_WRONG
-# 80 "data/maps/DaycareMausholdShrink/scripts.pory"
 	waitmessage
+# 80 "data/maps/DaycareMausholdShrink/scripts.pory"
+	setflag FLAG_FAM_FOUR
 # 81 "data/maps/DaycareMausholdShrink/scripts.pory"
-	removefieldmugshot
+	setflag FLAG_FAMFOUR_WRONG
 # 82 "data/maps/DaycareMausholdShrink/scripts.pory"
+	waitmessage
+# 83 "data/maps/DaycareMausholdShrink/scripts.pory"
+	removefieldmugshot
+# 84 "data/maps/DaycareMausholdShrink/scripts.pory"
 	release
 	end
 
 FamilyofFour_11:
-# 16 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 18 "data/maps/DaycareMausholdShrink/scripts.pory"
 	goto_if_set FLAG_FAM_THREE, FamilyofFour_16
-# 28 "data/maps/DaycareMausholdShrink/scripts.pory"
-	speakername FamilyofFour_Text_0
-# 29 "data/maps/DaycareMausholdShrink/scripts.pory"
-	playse SE_PIN
 # 30 "data/maps/DaycareMausholdShrink/scripts.pory"
-	applymovement Maushold4, Common_Movement_ExclamationMark
+	speakername FamilyofFour_Text_0
 # 31 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmovement Maushold4
+	playse SE_PIN
 # 32 "data/maps/DaycareMausholdShrink/scripts.pory"
-	applymovement Maushold4, FamilyofFour_Movement_0
+	applymovement Maushold4, Common_Movement_ExclamationMark
 # 33 "data/maps/DaycareMausholdShrink/scripts.pory"
 	waitmovement Maushold4
 # 34 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox FamilyofFour_Text_6, MSGBOX_DEFAULT
+	applymovement Maushold4, FamilyofFour_Movement_0
 # 35 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
+	waitmovement Maushold4
 # 36 "data/maps/DaycareMausholdShrink/scripts.pory"
-	applymovement Maushold4, FamilyofFour_Movement_1
+	msgbox FamilyofFour_Text_6, MSGBOX_DEFAULT
 # 37 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmovement
+	waitmessage
 # 38 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox FamilyofFour_Text_7, MSGBOX_DEFAULT
+	applymovement Maushold4, FamilyofFour_Movement_1
 # 39 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
+	waitmovement
 # 40 "data/maps/DaycareMausholdShrink/scripts.pory"
-	removefieldmugshot
+	msgbox FamilyofFour_Text_7, MSGBOX_DEFAULT
 # 41 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_SUPPRESS_SPEAKER_NAME
-# 42 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_FAM_FOUR
-# 43 "data/maps/DaycareMausholdShrink/scripts.pory"
-	giveitem ITEM_POTION, 4
-# 44 "data/maps/DaycareMausholdShrink/scripts.pory"
-	clearflag FLAG_SUPPRESS_SPEAKER_NAME
-# 45 "data/maps/DaycareMausholdShrink/scripts.pory"
 	waitmessage
+# 42 "data/maps/DaycareMausholdShrink/scripts.pory"
+	removefieldmugshot
+# 43 "data/maps/DaycareMausholdShrink/scripts.pory"
+	setflag FLAG_SUPPRESS_SPEAKER_NAME
+# 44 "data/maps/DaycareMausholdShrink/scripts.pory"
+	setflag FLAG_FAM_FOUR
+# 45 "data/maps/DaycareMausholdShrink/scripts.pory"
+	giveitem ITEM_POTION, 4
 # 46 "data/maps/DaycareMausholdShrink/scripts.pory"
+	clearflag FLAG_SUPPRESS_SPEAKER_NAME
+# 47 "data/maps/DaycareMausholdShrink/scripts.pory"
+	waitmessage
+# 48 "data/maps/DaycareMausholdShrink/scripts.pory"
 	release
 	end
 
 FamilyofFour_13:
-# 87 "data/maps/DaycareMausholdShrink/scripts.pory"
-	speakername FamilyofFour_Text_0
-# 88 "data/maps/DaycareMausholdShrink/scripts.pory"
-	playse SE_PIN
 # 89 "data/maps/DaycareMausholdShrink/scripts.pory"
-	applymovement Maushold4, Common_Movement_ExclamationMark
+	speakername FamilyofFour_Text_0
 # 90 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmovement Maushold4
+	playse SE_PIN
 # 91 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox FamilyofFour_Text_8, MSGBOX_DEFAULT
+	applymovement Maushold4, Common_Movement_ExclamationMark
 # 92 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
+	waitmovement Maushold4
 # 93 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_FAM_FOUR
+	msgbox FamilyofFour_Text_8, MSGBOX_DEFAULT
 # 94 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_FAMFOUR_WRONG
-# 95 "data/maps/DaycareMausholdShrink/scripts.pory"
 	waitmessage
+# 95 "data/maps/DaycareMausholdShrink/scripts.pory"
+	setflag FLAG_FAM_FOUR
 # 96 "data/maps/DaycareMausholdShrink/scripts.pory"
-	removefieldmugshot
+	setflag FLAG_FAMFOUR_WRONG
 # 97 "data/maps/DaycareMausholdShrink/scripts.pory"
+	waitmessage
+# 98 "data/maps/DaycareMausholdShrink/scripts.pory"
+	removefieldmugshot
+# 99 "data/maps/DaycareMausholdShrink/scripts.pory"
 	release
 	end
 
 FamilyofFour_16:
-# 18 "data/maps/DaycareMausholdShrink/scripts.pory"
-	speakername FamilyofFour_Text_0
-# 19 "data/maps/DaycareMausholdShrink/scripts.pory"
-	playse SE_PIN
 # 20 "data/maps/DaycareMausholdShrink/scripts.pory"
-	applymovement Maushold4, Common_Movement_ExclamationMark
+	speakername FamilyofFour_Text_0
 # 21 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmovement Maushold4
+	playse SE_PIN
 # 22 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox FamilyofFour_Text_5, MSGBOX_DEFAULT
+	applymovement Maushold4, Common_Movement_ExclamationMark
 # 23 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_FAM_FOUR
+	waitmovement Maushold4
 # 24 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
+	msgbox FamilyofFour_Text_5, MSGBOX_DEFAULT
 # 25 "data/maps/DaycareMausholdShrink/scripts.pory"
+	setflag FLAG_FAM_FOUR
+# 26 "data/maps/DaycareMausholdShrink/scripts.pory"
+	waitmessage
+# 27 "data/maps/DaycareMausholdShrink/scripts.pory"
 	release
 	end
 
 
 FamilyofThree::
-# 114 "data/maps/DaycareMausholdShrink/scripts.pory"
-	lock
-# 115 "data/maps/DaycareMausholdShrink/scripts.pory"
-	faceplayer
 # 116 "data/maps/DaycareMausholdShrink/scripts.pory"
+	lock
+# 117 "data/maps/DaycareMausholdShrink/scripts.pory"
+	faceplayer
+# 118 "data/maps/DaycareMausholdShrink/scripts.pory"
 	goto_if_unset FLAG_FAM_THREE, FamilyofThree_1
-# 213 "data/maps/DaycareMausholdShrink/scripts.pory"
-	speakername FamilyofFour_Text_0
-# 214 "data/maps/DaycareMausholdShrink/scripts.pory"
-	createfieldmugshot MUGSHOT_MAUSHOLD3, EMOTE_NORMAL
 # 215 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox FamilyofThree_Text_2, MSGBOX_DEFAULT
+	speakername FamilyofFour_Text_0
 # 216 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
+	createfieldmugshot MUGSHOT_MAUSHOLD3, EMOTE_NORMAL
 # 217 "data/maps/DaycareMausholdShrink/scripts.pory"
-	removefieldmugshot
+	msgbox FamilyofThree_Text_2, MSGBOX_DEFAULT
 # 218 "data/maps/DaycareMausholdShrink/scripts.pory"
+	waitmessage
+# 219 "data/maps/DaycareMausholdShrink/scripts.pory"
+	removefieldmugshot
+# 220 "data/maps/DaycareMausholdShrink/scripts.pory"
 	release
 	end
 
 FamilyofThree_1:
-# 118 "data/maps/DaycareMausholdShrink/scripts.pory"
-	speakername FamilyofFour_Text_0
-# 119 "data/maps/DaycareMausholdShrink/scripts.pory"
-	createfieldmugshot MUGSHOT_MAUSHOLD3, EMOTE_NORMAL
 # 120 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox FamilyofFour_Text_1, MSGBOX_DEFAULT
+	speakername FamilyofFour_Text_0
 # 121 "data/maps/DaycareMausholdShrink/scripts.pory"
-	dynmultichoice 0, 0, TRUE, 3, 0, DYN_MULTICHOICE_CB_NONE, FamilyofFour_Text_2, FamilyofFour_Text_3, FamilyofFour_Text_4
+	createfieldmugshot MUGSHOT_MAUSHOLD3, EMOTE_NORMAL
 # 122 "data/maps/DaycareMausholdShrink/scripts.pory"
+	msgbox FamilyofFour_Text_1, MSGBOX_DEFAULT
+# 123 "data/maps/DaycareMausholdShrink/scripts.pory"
+	dynmultichoice 0, 0, TRUE, 3, 0, DYN_MULTICHOICE_CB_NONE, FamilyofFour_Text_2, FamilyofFour_Text_3, FamilyofFour_Text_4
+# 124 "data/maps/DaycareMausholdShrink/scripts.pory"
 	compare VAR_RESULT, 0
 	goto_if_eq FamilyofThree_5
-# 137 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 139 "data/maps/DaycareMausholdShrink/scripts.pory"
 	compare VAR_RESULT, 1
 	goto_if_eq FamilyofThree_8
-# 195 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 197 "data/maps/DaycareMausholdShrink/scripts.pory"
 	compare VAR_RESULT, 2
 	goto_if_eq FamilyofThree_10
 	return
 
 FamilyofThree_5:
-# 124 "data/maps/DaycareMausholdShrink/scripts.pory"
-	speakername FamilyofFour_Text_0
-# 125 "data/maps/DaycareMausholdShrink/scripts.pory"
-	playse SE_PIN
 # 126 "data/maps/DaycareMausholdShrink/scripts.pory"
-	applymovement Maushold3, Common_Movement_ExclamationMark
+	speakername FamilyofFour_Text_0
 # 127 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmovement Maushold3
+	playse SE_PIN
 # 128 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox FamilyofFour_Text_8, MSGBOX_DEFAULT
+	applymovement Maushold3, Common_Movement_ExclamationMark
 # 129 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
+	waitmovement Maushold3
 # 130 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_FAM_THREE
+	msgbox FamilyofFour_Text_8, MSGBOX_DEFAULT
 # 131 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_FAMTHREE_WRONG
-# 132 "data/maps/DaycareMausholdShrink/scripts.pory"
 	waitmessage
+# 132 "data/maps/DaycareMausholdShrink/scripts.pory"
+	setflag FLAG_FAM_THREE
 # 133 "data/maps/DaycareMausholdShrink/scripts.pory"
-	removefieldmugshot
+	setflag FLAG_FAMTHREE_WRONG
 # 134 "data/maps/DaycareMausholdShrink/scripts.pory"
+	waitmessage
+# 135 "data/maps/DaycareMausholdShrink/scripts.pory"
+	removefieldmugshot
+# 136 "data/maps/DaycareMausholdShrink/scripts.pory"
 	release
 	end
 
 FamilyofThree_8:
-# 139 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 141 "data/maps/DaycareMausholdShrink/scripts.pory"
 	goto_if_set FLAG_FAM_FOUR, FamilyofThree_13
-# 174 "data/maps/DaycareMausholdShrink/scripts.pory"
-	speakername FamilyofFour_Text_0
-# 175 "data/maps/DaycareMausholdShrink/scripts.pory"
-	playse SE_PIN
 # 176 "data/maps/DaycareMausholdShrink/scripts.pory"
-	applymovement Maushold3, Common_Movement_ExclamationMark
+	speakername FamilyofFour_Text_0
 # 177 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmovement Maushold3
+	playse SE_PIN
 # 178 "data/maps/DaycareMausholdShrink/scripts.pory"
-	applymovement Maushold3, FamilyofThree_Movement_0
+	applymovement Maushold3, Common_Movement_ExclamationMark
 # 179 "data/maps/DaycareMausholdShrink/scripts.pory"
 	waitmovement Maushold3
 # 180 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox FamilyofThree_Text_0, MSGBOX_DEFAULT
+	applymovement Maushold3, FamilyofThree_Movement_0
 # 181 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
+	waitmovement Maushold3
 # 182 "data/maps/DaycareMausholdShrink/scripts.pory"
-	applymovement Maushold3, FamilyofFour_Movement_1
+	msgbox FamilyofThree_Text_0, MSGBOX_DEFAULT
 # 183 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmovement
+	waitmessage
 # 184 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox FamilyofThree_Text_1, MSGBOX_DEFAULT
+	applymovement Maushold3, FamilyofFour_Movement_1
 # 185 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
+	waitmovement
 # 186 "data/maps/DaycareMausholdShrink/scripts.pory"
-	removefieldmugshot
+	msgbox FamilyofThree_Text_1, MSGBOX_DEFAULT
 # 187 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_SUPPRESS_SPEAKER_NAME
-# 188 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_FAM_THREE
-# 189 "data/maps/DaycareMausholdShrink/scripts.pory"
-	giveitem ITEM_POTION, 3
-# 190 "data/maps/DaycareMausholdShrink/scripts.pory"
-	clearflag FLAG_SUPPRESS_SPEAKER_NAME
-# 191 "data/maps/DaycareMausholdShrink/scripts.pory"
 	waitmessage
+# 188 "data/maps/DaycareMausholdShrink/scripts.pory"
+	removefieldmugshot
+# 189 "data/maps/DaycareMausholdShrink/scripts.pory"
+	setflag FLAG_SUPPRESS_SPEAKER_NAME
+# 190 "data/maps/DaycareMausholdShrink/scripts.pory"
+	setflag FLAG_FAM_THREE
+# 191 "data/maps/DaycareMausholdShrink/scripts.pory"
+	giveitem ITEM_POTION, 3
 # 192 "data/maps/DaycareMausholdShrink/scripts.pory"
+	clearflag FLAG_SUPPRESS_SPEAKER_NAME
+# 193 "data/maps/DaycareMausholdShrink/scripts.pory"
+	waitmessage
+# 194 "data/maps/DaycareMausholdShrink/scripts.pory"
 	release
 	end
 
 FamilyofThree_10:
-# 197 "data/maps/DaycareMausholdShrink/scripts.pory"
-	speakername FamilyofFour_Text_0
-# 198 "data/maps/DaycareMausholdShrink/scripts.pory"
-	playse SE_PIN
 # 199 "data/maps/DaycareMausholdShrink/scripts.pory"
-	applymovement Maushold3, Common_Movement_ExclamationMark
+	speakername FamilyofFour_Text_0
 # 200 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmovement Maushold3
+	playse SE_PIN
 # 201 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox FamilyofFour_Text_8, MSGBOX_DEFAULT
+	applymovement Maushold3, Common_Movement_ExclamationMark
 # 202 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
+	waitmovement Maushold3
 # 203 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_FAM_THREE
+	msgbox FamilyofFour_Text_8, MSGBOX_DEFAULT
 # 204 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_FAMTHREE_WRONG
-# 205 "data/maps/DaycareMausholdShrink/scripts.pory"
 	waitmessage
+# 205 "data/maps/DaycareMausholdShrink/scripts.pory"
+	setflag FLAG_FAM_THREE
 # 206 "data/maps/DaycareMausholdShrink/scripts.pory"
-	removefieldmugshot
+	setflag FLAG_FAMTHREE_WRONG
 # 207 "data/maps/DaycareMausholdShrink/scripts.pory"
+	waitmessage
+# 208 "data/maps/DaycareMausholdShrink/scripts.pory"
+	removefieldmugshot
+# 209 "data/maps/DaycareMausholdShrink/scripts.pory"
 	release
 	end
 
 FamilyofThree_13:
-# 141 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 143 "data/maps/DaycareMausholdShrink/scripts.pory"
 	goto_if_unset FLAG_FAMFOUR_WRONG, FamilyofThree_16
-# 153 "data/maps/DaycareMausholdShrink/scripts.pory"
-	speakername FamilyofFour_Text_0
-# 154 "data/maps/DaycareMausholdShrink/scripts.pory"
-	playse SE_PIN
 # 155 "data/maps/DaycareMausholdShrink/scripts.pory"
-	applymovement Maushold3, Common_Movement_ExclamationMark
+	speakername FamilyofFour_Text_0
 # 156 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmovement Maushold3
+	playse SE_PIN
 # 157 "data/maps/DaycareMausholdShrink/scripts.pory"
-	applymovement Maushold3, FamilyofThree_Movement_0
+	applymovement Maushold3, Common_Movement_ExclamationMark
 # 158 "data/maps/DaycareMausholdShrink/scripts.pory"
 	waitmovement Maushold3
 # 159 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox FamilyofThree_Text_0, MSGBOX_DEFAULT
+	applymovement Maushold3, FamilyofThree_Movement_0
 # 160 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
+	waitmovement Maushold3
 # 161 "data/maps/DaycareMausholdShrink/scripts.pory"
-	applymovement Maushold3, FamilyofFour_Movement_1
+	msgbox FamilyofThree_Text_0, MSGBOX_DEFAULT
 # 162 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmovement
+	waitmessage
 # 163 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox FamilyofThree_Text_1, MSGBOX_DEFAULT
+	applymovement Maushold3, FamilyofFour_Movement_1
 # 164 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
+	waitmovement
 # 165 "data/maps/DaycareMausholdShrink/scripts.pory"
-	removefieldmugshot
+	msgbox FamilyofThree_Text_1, MSGBOX_DEFAULT
 # 166 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_SUPPRESS_SPEAKER_NAME
-# 167 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_FAM_THREE
-# 168 "data/maps/DaycareMausholdShrink/scripts.pory"
-	giveitem ITEM_POTION, 3
-# 169 "data/maps/DaycareMausholdShrink/scripts.pory"
-	clearflag FLAG_SUPPRESS_SPEAKER_NAME
-# 170 "data/maps/DaycareMausholdShrink/scripts.pory"
 	waitmessage
+# 167 "data/maps/DaycareMausholdShrink/scripts.pory"
+	removefieldmugshot
+# 168 "data/maps/DaycareMausholdShrink/scripts.pory"
+	setflag FLAG_SUPPRESS_SPEAKER_NAME
+# 169 "data/maps/DaycareMausholdShrink/scripts.pory"
+	setflag FLAG_FAM_THREE
+# 170 "data/maps/DaycareMausholdShrink/scripts.pory"
+	giveitem ITEM_POTION, 3
 # 171 "data/maps/DaycareMausholdShrink/scripts.pory"
+	clearflag FLAG_SUPPRESS_SPEAKER_NAME
+# 172 "data/maps/DaycareMausholdShrink/scripts.pory"
+	waitmessage
+# 173 "data/maps/DaycareMausholdShrink/scripts.pory"
 	release
 	end
 
 FamilyofThree_16:
-# 143 "data/maps/DaycareMausholdShrink/scripts.pory"
-	speakername FamilyofFour_Text_0
-# 144 "data/maps/DaycareMausholdShrink/scripts.pory"
-	playse SE_PIN
 # 145 "data/maps/DaycareMausholdShrink/scripts.pory"
-	applymovement Maushold3, Common_Movement_ExclamationMark
+	speakername FamilyofFour_Text_0
 # 146 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmovement Maushold3
+	playse SE_PIN
 # 147 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox FamilyofFour_Text_5, MSGBOX_DEFAULT
+	applymovement Maushold3, Common_Movement_ExclamationMark
 # 148 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_FAM_THREE
+	waitmovement Maushold3
 # 149 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
+	msgbox FamilyofFour_Text_5, MSGBOX_DEFAULT
 # 150 "data/maps/DaycareMausholdShrink/scripts.pory"
+	setflag FLAG_FAM_THREE
+# 151 "data/maps/DaycareMausholdShrink/scripts.pory"
+	waitmessage
+# 152 "data/maps/DaycareMausholdShrink/scripts.pory"
 	release
 	end
 
 
 Familyoftwo::
-# 224 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 226 "data/maps/DaycareMausholdShrink/scripts.pory"
 	goto_if_unset FLAG_FAM_TWO, Familyoftwo_1
-# 241 "data/maps/DaycareMausholdShrink/scripts.pory"
-	lock
-# 242 "data/maps/DaycareMausholdShrink/scripts.pory"
-	faceplayer
 # 243 "data/maps/DaycareMausholdShrink/scripts.pory"
-	speakername Familyoftwo_Text_0
+	lock
 # 244 "data/maps/DaycareMausholdShrink/scripts.pory"
-	createfieldmugshot MUGSHOT_TANDEMAUS, EMOTE_NORMAL
+	faceplayer
 # 245 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox Familyoftwo_Text_2, MSGBOX_DEFAULT
+	speakername Familyoftwo_Text_0
 # 246 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
+	createfieldmugshot MUGSHOT_TANDEMAUS, EMOTE_NORMAL
 # 247 "data/maps/DaycareMausholdShrink/scripts.pory"
-	removefieldmugshot
+	msgbox Familyoftwo_Text_2, MSGBOX_DEFAULT
 # 248 "data/maps/DaycareMausholdShrink/scripts.pory"
+	waitmessage
+# 249 "data/maps/DaycareMausholdShrink/scripts.pory"
+	removefieldmugshot
+# 250 "data/maps/DaycareMausholdShrink/scripts.pory"
 	release
 	end
 
 Familyoftwo_1:
-# 226 "data/maps/DaycareMausholdShrink/scripts.pory"
-	lock
-# 227 "data/maps/DaycareMausholdShrink/scripts.pory"
-	faceplayer
 # 228 "data/maps/DaycareMausholdShrink/scripts.pory"
-	speakername Familyoftwo_Text_0
+	lock
 # 229 "data/maps/DaycareMausholdShrink/scripts.pory"
-	createfieldmugshot MUGSHOT_TANDEMAUS, EMOTE_NORMAL
+	faceplayer
 # 230 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox Familyoftwo_Text_1, MSGBOX_DEFAULT
+	speakername Familyoftwo_Text_0
 # 231 "data/maps/DaycareMausholdShrink/scripts.pory"
-	removefieldmugshot
+	createfieldmugshot MUGSHOT_TANDEMAUS, EMOTE_NORMAL
 # 232 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_SUPPRESS_SPEAKER_NAME
+	msgbox Familyoftwo_Text_1, MSGBOX_DEFAULT
 # 233 "data/maps/DaycareMausholdShrink/scripts.pory"
-	setflag FLAG_FAM_TWO
+	removefieldmugshot
 # 234 "data/maps/DaycareMausholdShrink/scripts.pory"
-	giveitem ITEM_LUCKY_EGG, 2
+	setflag FLAG_SUPPRESS_SPEAKER_NAME
 # 235 "data/maps/DaycareMausholdShrink/scripts.pory"
-	clearflag FLAG_SUPPRESS_SPEAKER_NAME
+	setflag FLAG_FAM_TWO
 # 236 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
+	giveitem ITEM_LUCKY_EGG, 2
 # 237 "data/maps/DaycareMausholdShrink/scripts.pory"
+	clearflag FLAG_SUPPRESS_SPEAKER_NAME
+# 238 "data/maps/DaycareMausholdShrink/scripts.pory"
+	waitmessage
+# 239 "data/maps/DaycareMausholdShrink/scripts.pory"
 	release
 	end
 
 
 ShrinkToPikachuCave5::
-# 254 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 256 "data/maps/DaycareMausholdShrink/scripts.pory"
 	lock
-# 255 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 257 "data/maps/DaycareMausholdShrink/scripts.pory"
 	compare VAR_TRANSFORM_MON, SPECIES_CUTIEFLY
 	goto_if_eq ShrinkToPikachuCave5_1
-# 269 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 271 "data/maps/DaycareMausholdShrink/scripts.pory"
 	goto_if_set FLAG_TRANS_CUTIEFLY, ShrinkToPikachuCave5_4
 ShrinkToPikachuCave5_3:
-# 298 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox ShrinkToPikachuCave5_Text_2, MSGBOX_DEFAULT
-# 299 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
 # 300 "data/maps/DaycareMausholdShrink/scripts.pory"
+	msgbox ShrinkToPikachuCave5_Text_2, MSGBOX_DEFAULT
+# 301 "data/maps/DaycareMausholdShrink/scripts.pory"
+	waitmessage
+# 302 "data/maps/DaycareMausholdShrink/scripts.pory"
 	release
 	end
 
 ShrinkToPikachuCave5_1:
-# 257 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 259 "data/maps/DaycareMausholdShrink/scripts.pory"
 	msgbox ShrinkToPikachuCave5_Text_0, MSGBOX_YESNO
-# 258 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 260 "data/maps/DaycareMausholdShrink/scripts.pory"
 	compare VAR_RESULT, YES
 	goto_if_eq ShrinkToPikachuCave5_8
-# 264 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 266 "data/maps/DaycareMausholdShrink/scripts.pory"
 	waitmessage
-# 265 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 267 "data/maps/DaycareMausholdShrink/scripts.pory"
 	release
 	end
 
 ShrinkToPikachuCave5_2:
-# 271 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 273 "data/maps/DaycareMausholdShrink/scripts.pory"
 	checkpartymove MOVE_STICKY_WEB
-# 272 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 274 "data/maps/DaycareMausholdShrink/scripts.pory"
 	compare VAR_RESULT, PARTY_SIZE
 	goto_if_ne ShrinkToPikachuCave5_11
-# 290 "data/maps/DaycareMausholdShrink/scripts.pory"
-	msgbox ShrinkToPikachuCave5_Text_2, MSGBOX_DEFAULT
-# 291 "data/maps/DaycareMausholdShrink/scripts.pory"
-	waitmessage
 # 292 "data/maps/DaycareMausholdShrink/scripts.pory"
+	msgbox ShrinkToPikachuCave5_Text_2, MSGBOX_DEFAULT
+# 293 "data/maps/DaycareMausholdShrink/scripts.pory"
+	waitmessage
+# 294 "data/maps/DaycareMausholdShrink/scripts.pory"
 	release
 	end
 
 ShrinkToPikachuCave5_4:
-# 269 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 271 "data/maps/DaycareMausholdShrink/scripts.pory"
 	compare VAR_TRANSFORM_MON, SPECIES_CUTIEFLY
 	goto_if_ne ShrinkToPikachuCave5_2
 	goto ShrinkToPikachuCave5_3
 
 ShrinkToPikachuCave5_8:
-# 260 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 262 "data/maps/DaycareMausholdShrink/scripts.pory"
 	warp MAP_DAYCAREBASE, 2
 	return
 
 ShrinkToPikachuCave5_11:
-# 274 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 276 "data/maps/DaycareMausholdShrink/scripts.pory"
 	msgbox ShrinkToPikachuCave5_Text_1, MSGBOX_YESNO
-# 275 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 277 "data/maps/DaycareMausholdShrink/scripts.pory"
 	compare VAR_RESULT, YES
 	goto_if_eq ShrinkToPikachuCave5_14
-# 283 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 285 "data/maps/DaycareMausholdShrink/scripts.pory"
 	waitmessage
-# 284 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 286 "data/maps/DaycareMausholdShrink/scripts.pory"
 	release
 	end
 
 ShrinkToPikachuCave5_14:
-# 277 "data/maps/DaycareMausholdShrink/scripts.pory"
-	dittotransform SPECIES_CUTIEFLY
-# 278 "data/maps/DaycareMausholdShrink/scripts.pory"
-	delay 30
 # 279 "data/maps/DaycareMausholdShrink/scripts.pory"
+	dittotransform SPECIES_CUTIEFLY
+# 280 "data/maps/DaycareMausholdShrink/scripts.pory"
+	delay 30
+# 281 "data/maps/DaycareMausholdShrink/scripts.pory"
 	warp MAP_DAYCAREBASE, 2
 	return
 
 
-# 32 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 2 "data/maps/DaycareMausholdShrink/scripts.pory"
+DaycareMausholdShrink_MapScripts_MAP_SCRIPT_ON_TRANSITION_Movement_0:
+# 2 "data/maps/DaycareMausholdShrink/scripts.pory"
+	face_up
+	step_end
+
+# 34 "data/maps/DaycareMausholdShrink/scripts.pory"
 FamilyofFour_Movement_0:
-# 32 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 34 "data/maps/DaycareMausholdShrink/scripts.pory"
 	face_left
 	step_end
 
-# 36 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 38 "data/maps/DaycareMausholdShrink/scripts.pory"
 FamilyofFour_Movement_1:
-# 36 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 38 "data/maps/DaycareMausholdShrink/scripts.pory"
 	face_player
 	step_end
 
-# 157 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 159 "data/maps/DaycareMausholdShrink/scripts.pory"
 FamilyofThree_Movement_0:
-# 157 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 159 "data/maps/DaycareMausholdShrink/scripts.pory"
 	face_right
 	step_end
 
 FamilyofFour_Text_0:
-# 8 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 10 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "Maushold$"
 
 FamilyofFour_Text_1:
-# 10 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 12 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "You!\pWelcome to our Maushold Haushold!\pWe've put in great work making\nthis haus a home.\pWe're in a bit of a dispute with\nthe neighbors over the proper\lhaushold size...\pWhat would you say the proper\nsize would be?$"
 
 FamilyofFour_Text_2:
-# 11 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 13 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "Four$"
 
 FamilyofFour_Text_3:
-# 11 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 13 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "Three$"
 
 FamilyofFour_Text_4:
-# 11 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 13 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "Two$"
 
 FamilyofFour_Text_5:
-# 22 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 24 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "Don't pander to us!\pWe heard the neighbors yell\nover to us!$"
 
 FamilyofFour_Text_6:
-# 34 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 36 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "Aha!\pSee that!\nFour is the right number.$"
 
 FamilyofFour_Text_7:
-# 38 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 40 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "Here. Take these four items.\n$"
 
 FamilyofFour_Text_8:
-# 76 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 78 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "Hey!\pHow dare you insult my family!\n$"
 
 FamilyofFour_Text_9:
-# 105 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 107 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "Things in fours just make sense!\n$"
 
 FamilyofThree_Text_0:
-# 159 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 161 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "Aha!\pSee that!\nThree is the right number.$"
 
 FamilyofThree_Text_1:
-# 163 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 165 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "Here. Take these three items.\n$"
 
 FamilyofThree_Text_2:
-# 215 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 217 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "Things in threes just make sense!\n$"
 
 Familyoftwo_Text_0:
-# 228 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 230 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "Tandemaus$"
 
 Familyoftwo_Text_1:
-# 230 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 232 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "The neighbors at the bottom of\nthe cliff are always feuding...\pWe decided not to have kids\nand we've been perfectly happy\lup here.\pHere. Take these two items.\n$"
 
 Familyoftwo_Text_2:
-# 245 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 247 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "We've been quite happy up here.\pWe've built a nice life for\nourselves.\pWe even have enough items\nleftover to afford to make\lfrequent trips around the Daycare!$"
 
 ShrinkToPikachuCave5_Text_0:
-# 257 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 259 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "There is a tiny hole that you can\nsqueeze through.\pWould you like to squeeze through it?$"
 
 ShrinkToPikachuCave5_Text_1:
-# 274 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 276 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "There is a tiny hole.\pA small Pokémon may be able to\nsqueeze through it.\pWould you like to transform into\nCutiefly to squeeze through it?$"
 
 ShrinkToPikachuCave5_Text_2:
-# 290 "data/maps/DaycareMausholdShrink/scripts.pory"
+# 292 "data/maps/DaycareMausholdShrink/scripts.pory"
 	.string "There is a tiny hole.\pA small Pokémon may be able to\nsqueeze through it.$"

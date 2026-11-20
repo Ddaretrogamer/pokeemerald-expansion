@@ -3,7 +3,7 @@ mapscripts DaycareVolcano_MapScripts{
 }
 
 script DaycareVolcano_OnTransition{
-    dittotransform(SPECIES_MARILL)
+    dittotransform(SPECIES_MARILL, FALSE)
     setrespawn(HEAL_LOCATION_DAYCARE_VOLCANO)
     setflag(FLAG_DISABLE_XFORM_MENU)
     end

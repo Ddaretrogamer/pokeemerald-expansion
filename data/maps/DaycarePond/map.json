@@ -102,8 +102,8 @@
     {
       "local_id": "Buizel",
       "graphics_id": "OBJ_EVENT_GFX_SPECIES(BUIZEL)",
-      "x": 10,
-      "y": 35,
+      "x": 12,
+      "y": 28,
       "elevation": 0,
       "movement_type": "MOVEMENT_TYPE_WALK_IN_PLACE_DOWN",
       "movement_range_x": 0,
@@ -366,8 +366,8 @@
     },
     {
       "type": "trigger",
-      "x": 10,
-      "y": 36,
+      "x": 12,
+      "y": 29,
       "elevation": 0,
       "var": "VAR_TEMP_1",
       "var_value": "0",
@@ -420,8 +420,8 @@
     },
     {
       "type": "trigger",
-      "x": 10,
-      "y": 37,
+      "x": 12,
+      "y": 30,
       "elevation": 0,
       "var": "VAR_TEMP_1",
       "var_value": "0",

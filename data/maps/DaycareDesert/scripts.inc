@@ -397,7 +397,7 @@ RhyhornDialog_Text_1:
 
 RhyhornDialog_Text_2:
 # 162 "data/maps/DaycareDesert/scripts.pory"
-	.string "Hey there little Ditto!\pI'm not much of a fighter, but\nI can see that you're determined!\pYou could probaby get some use out\nof my armor plated exterior...\pTell you what.\pWhy don't you transform into me,\nthat way you make use of my\lstrength!$"
+	.string "Hey there little Ditto!\pI'm not much of a fighter, but\nI can see that you're determined!\pYou could probably get some use out\nof my armor plated exterior...\pTell you what.\pWhy don't you transform into me,\nthat way you make use of my\lstrength!$"
 
 RhyhornDialog_Text_3:
 # 171 "data/maps/DaycareDesert/scripts.pory"

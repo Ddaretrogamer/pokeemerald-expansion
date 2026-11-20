@@ -1,4 +1,6 @@
-mapscripts DaycarePikachuShrinkCave_MapScripts {}
+mapscripts DaycarePikachuShrinkCave_MapScripts {
+    MAP_SCRIPT_ON_TRANSITION{applymovement(LOCALID_PLAYER, moves(face_up))}
+}
     
 script TarountulaDialog{
     lockall

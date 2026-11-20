@@ -159,7 +159,7 @@ script RhyhornDialog{
         waitmovement(Rhyhorn)
         speakername("Rhyhorn")
         createfieldmugshot(MUGSHOT_RHYHORN, EMOTE_HAPPY)
-        msgbox("Hey there little Ditto!\pI'm not much of a fighter, but\nI can see that you're determined!\pYou could probaby get some use out\nof my armor plated exterior...\pTell you what.\pWhy don't you transform into me,\nthat way you make use of my\lstrength!", MSGBOX_DEFAULT)
+        msgbox("Hey there little Ditto!\pI'm not much of a fighter, but\nI can see that you're determined!\pYou could probably get some use out\nof my armor plated exterior...\pTell you what.\pWhy don't you transform into me,\nthat way you make use of my\lstrength!", MSGBOX_DEFAULT)
         waitmessage
         removefieldmugshot
         lock

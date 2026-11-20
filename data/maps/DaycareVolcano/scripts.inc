@@ -6,7 +6,7 @@ DaycareVolcano_MapScripts::
 
 DaycareVolcano_OnTransition::
 # 6 "data/maps/DaycareVolcano/scripts.pory"
-	dittotransform SPECIES_MARILL
+	dittotransform SPECIES_MARILL, FALSE
 # 7 "data/maps/DaycareVolcano/scripts.pory"
 	setrespawn HEAL_LOCATION_DAYCARE_VOLCANO
 # 8 "data/maps/DaycareVolcano/scripts.pory"

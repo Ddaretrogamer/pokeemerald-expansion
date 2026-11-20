@@ -969,22 +969,21 @@ void HandleSpeciesGfxDataChange(u8 battlerAtk, u8 battlerDef, bool32 megaEvo, bo
                 targetSpecies = GetIllusionMonSpecies(battlerDef);
             else
                 targetSpecies = GetMonData(monDef, MON_DATA_SPECIES);
-            personalityValue = GetMonData(monAtk, MON_DATA_PERSONALITY);
-            isShiny = GetMonData(monAtk, MON_DATA_IS_SHINY);
         }
         else
         {
             targetSpecies = gBattleSpritesDataPtr->battlerData[battlerAtk].transformSpecies;
-            if (B_TRANSFORM_SHINY >= GEN_4 && trackEnemyPersonality && !megaEvo)
-            {
-                personalityValue = GetMonData(monDef, MON_DATA_PERSONALITY);
-                isShiny = GetMonData(monDef, MON_DATA_IS_SHINY);
-            }
-            else
-            {
-                personalityValue = GetMonData(monAtk, MON_DATA_PERSONALITY);
-                isShiny = GetMonData(monAtk, MON_DATA_IS_SHINY);
-            }
+        }
+
+        if (B_TRANSFORM_SHINY >= GEN_4 && trackEnemyPersonality && !megaEvo)
+        {
+            personalityValue = GetMonData(monDef, MON_DATA_PERSONALITY);
+            isShiny = GetMonData(monDef, MON_DATA_IS_SHINY);
+        }
+        else
+        {
+            personalityValue = GetMonData(monAtk, MON_DATA_PERSONALITY);
+            isShiny = GetMonData(monAtk, MON_DATA_IS_SHINY);
         }
 
         HandleLoadSpecialPokePic(!IsOnPlayerSide(battlerAtk),

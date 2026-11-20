@@ -10,6 +10,7 @@ void TryCreatePokemonAvatarSpriteBob(void);
 void Task_CreatePokemonAvatarBob(u8 taskId);
 void Task_PokemonAvatar_HandleBob(u8 taskId);
 void UpdatePlayerTransformAnimation(u8 taskId);
+bool8 IsPlayerTransformEffectFinished(void);
 
 u16 ReturnAvatarMugshotId(u16 avatarId);
 u16 ReturnAvatarGraphicsId(u16 avatarId);

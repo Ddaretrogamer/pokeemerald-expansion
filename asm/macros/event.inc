@@ -2661,9 +2661,13 @@
 	.endm
 
 	@ Transforms the Player Ditto into a specific Pokemon
-	.macro dittotransform species:req
+	@ Immediate map scripts must pass FALSE because they cannot wait for tasks.
+	.macro dittotransform species:req, wait=TRUE
 	callnative SetPlayerAvatarFromScript, requests_effects=1
 	.2byte \species
+	.if \wait
+	gotonative IsPlayerTransformEffectFinished
+	.endif
 	.endm
 
 
