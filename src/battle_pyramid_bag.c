@@ -182,7 +182,7 @@ static const struct MenuAction sMenuActions[] =
     [ACTION_DUMMY] =        { gText_EmptyString2, {NULL} },
 };
 
-static const u8 sMenuActionIds_Field[] = {ACTION_USE_FIELD, ACTION_GIVE, ACTION_TOSS, ACTION_CANCEL};
+static const u8 sMenuActionIds_Field[] = {ACTION_USE_FIELD, ACTION_GIVE, ACTION_CANCEL, ACTION_DUMMY};
 static const u8 sMenuActionIds_ChooseToss[] = {ACTION_TOSS, ACTION_CANCEL};
 static const u8 sMenuActionIds_Battle[] = {ACTION_USE_BATTLE, ACTION_CANCEL};
 static const u8 sMenuActionIds_BattleCannotUse[] = {ACTION_CANCEL};

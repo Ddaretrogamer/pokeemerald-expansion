@@ -570,3 +570,4 @@ gSpecials::
 	def_special GetWhiteoutCount
 	def_special ForceShinyDitto
 	def_special RemoveForceShinyDitto
+	def_special GetDittoLevel

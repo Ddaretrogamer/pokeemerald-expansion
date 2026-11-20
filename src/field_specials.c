@@ -1587,6 +1587,11 @@ u16 ScriptGetPartyMonSpecies(void)
     return GetMonData(&gPlayerParty[gSpecialVar_0x8004], MON_DATA_SPECIES_OR_EGG, NULL);
 }
 
+u16 GetDittoLevel(void)
+{
+    return GetMonData(&gPlayerParty[0], MON_DATA_LEVEL);
+}
+
 // Removed for Emerald
 void TryInitBattleTowerAwardManObjectEvent(void)
 {

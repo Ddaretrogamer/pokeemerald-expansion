@@ -377,9 +377,12 @@ script DaycareOldManDialog{
             playse(SE_EXP_MAX)
             waitse
             playfanfare(MUS_LEVEL_UP)
-            msgbox("Ditto grew to level 26.\n", MSGBOX_DEFAULT)
-            waitfanfare
             callnative(Script_GiveFirstMonLevel)
+            specialvar(VAR_RESULT, GetDittoLevel)
+            buffernumberstring(STR_VAR_1, VAR_RESULT)
+            msgbox("Ditto grew to level {STR_VAR_1}.\n", MSGBOX_DEFAULT)
+            waitfanfare
+            removeitem(ITEM_AIR_BALLOON, 1)
             clearflag(FLAG_SUPPRESS_SPEAKER_NAME)
             speakername("Daycare Man")
             msgbox("With this Egg, I can now fulfill\nmy duties.", MSGBOX_AUTOCLOSE)
@@ -485,9 +488,12 @@ script DaycareOldManDialog{
             playse(SE_EXP_MAX)
             waitse
             playfanfare(MUS_LEVEL_UP)
-            msgbox("Ditto grew to level 26.\n", MSGBOX_DEFAULT)
-            waitfanfare
             callnative(Script_GiveFirstMonLevel)
+            specialvar(VAR_RESULT, GetDittoLevel)
+            buffernumberstring(STR_VAR_1, VAR_RESULT)
+            msgbox("Ditto grew to level {STR_VAR_1}.\n", MSGBOX_DEFAULT)
+            waitfanfare
+            removeitem(ITEM_AIR_BALLOON, 1)
             clearflag(FLAG_SUPPRESS_SPEAKER_NAME)
             speakername("Daycare Man")
             msgbox("With this Egg, I can now fulfill\nmy duties.", MSGBOX_AUTOCLOSE)
