@@ -609,9 +609,9 @@ BuizelInCaveTrigger_4:
 # 362 "data/maps/DaycarePond/scripts.pory"
 	switch VAR_TEMP_2
 # 364 "data/maps/DaycarePond/scripts.pory"
-	case 37, BuizelInCaveTrigger_7
+	case 30, BuizelInCaveTrigger_7
 # 389 "data/maps/DaycarePond/scripts.pory"
-	case 36, BuizelInCaveTrigger_8
+	case 29, BuizelInCaveTrigger_8
 	return
 
 BuizelInCaveTrigger_7:

@@ -434,30 +434,41 @@ static void Task_Hof_InitMonData(u8 taskId)
 
     gTasks[taskId].tMonNumber = 0; // valid pokes
 
-    for (i = 0; i < PARTY_SIZE; i++)
+    // Only save the first party Pokémon
     {
         u8 nickname[POKEMON_NAME_LENGTH + 1];
-        if (GetMonData(&gPlayerParty[i], MON_DATA_SPECIES))
+        if (GetMonData(&gPlayerParty[0], MON_DATA_SPECIES))
         {
-            sHofMonPtr->mon[i].species = GetMonData(&gPlayerParty[i], MON_DATA_SPECIES_OR_EGG);
-            sHofMonPtr->mon[i].tid = GetMonData(&gPlayerParty[i], MON_DATA_OT_ID);
-            sHofMonPtr->mon[i].isShiny = GetMonData(&gPlayerParty[i], MON_DATA_IS_SHINY);
-            sHofMonPtr->mon[i].personality = GetMonData(&gPlayerParty[i], MON_DATA_PERSONALITY);
-            sHofMonPtr->mon[i].lvl = GetMonData(&gPlayerParty[i], MON_DATA_LEVEL);
-            GetMonData(&gPlayerParty[i], MON_DATA_NICKNAME, nickname);
+            sHofMonPtr->mon[0].species = GetMonData(&gPlayerParty[0], MON_DATA_SPECIES_OR_EGG);
+            sHofMonPtr->mon[0].tid = GetMonData(&gPlayerParty[0], MON_DATA_OT_ID);
+            sHofMonPtr->mon[0].isShiny = GetMonData(&gPlayerParty[0], MON_DATA_IS_SHINY);
+            sHofMonPtr->mon[0].personality = GetMonData(&gPlayerParty[0], MON_DATA_PERSONALITY);
+            sHofMonPtr->mon[0].lvl = GetMonData(&gPlayerParty[0], MON_DATA_LEVEL);
+            GetMonData(&gPlayerParty[0], MON_DATA_NICKNAME, nickname);
             for (j = 0; j < POKEMON_NAME_LENGTH; j++)
-                sHofMonPtr->mon[i].nickname[j] = nickname[j];
+                sHofMonPtr->mon[0].nickname[j] = nickname[j];
             gTasks[taskId].tMonNumber++;
         }
         else
         {
-            sHofMonPtr->mon[i].species = SPECIES_NONE;
-            sHofMonPtr->mon[i].tid = 0;
-            sHofMonPtr->mon[i].isShiny = FALSE;
-            sHofMonPtr->mon[i].personality = 0;
-            sHofMonPtr->mon[i].lvl = 0;
-            sHofMonPtr->mon[i].nickname[0] = EOS;
+            sHofMonPtr->mon[0].species = SPECIES_NONE;
+            sHofMonPtr->mon[0].tid = 0;
+            sHofMonPtr->mon[0].isShiny = FALSE;
+            sHofMonPtr->mon[0].personality = 0;
+            sHofMonPtr->mon[0].lvl = 0;
+            sHofMonPtr->mon[0].nickname[0] = EOS;
         }
+    }
+
+    // Clear remaining team slots
+    for (i = 1; i < PARTY_SIZE; i++)
+    {
+        sHofMonPtr->mon[i].species = SPECIES_NONE;
+        sHofMonPtr->mon[i].tid = 0;
+        sHofMonPtr->mon[i].isShiny = FALSE;
+        sHofMonPtr->mon[i].personality = 0;
+        sHofMonPtr->mon[i].lvl = 0;
+        sHofMonPtr->mon[i].nickname[0] = EOS;
     }
 
     sHofFadePalettes = 0;

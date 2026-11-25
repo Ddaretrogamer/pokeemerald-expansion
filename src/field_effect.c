@@ -1103,12 +1103,11 @@ static void PokecenterHealEffect_WaitForSoundAndEnd(struct Task *task)
 
 bool8 FldEff_HallOfFameRecord(void)
 {
-    u8 nPokemon;
     struct Task *task;
 
-    nPokemon = CalculatePlayerPartyCount();
+    CalculatePlayerPartyCount();
     task = &gTasks[CreateTask(Task_HallOfFameRecord, 0xff)];
-    task->tNumMons = nPokemon;
+    task->tNumMons = 1;
     task->tFirstBallX = 117;
     task->tFirstBallY = 52;
     return FALSE;

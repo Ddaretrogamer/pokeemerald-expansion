@@ -361,7 +361,7 @@ script BuizelInCaveTrigger{
             getplayerxy(VAR_TEMP_1, VAR_TEMP_2)
             switch(var(VAR_TEMP_2)) 
             {
-            case 37:
+            case 30:
                 applymovement(Buizel, moves(face_player))
                 waitmovement(Buizel)
                 applymovement(LOCALID_PLAYER, moves(face_up))
@@ -386,7 +386,7 @@ script BuizelInCaveTrigger{
                     release
                     end
                 }
-            case 36:
+            case 29:
                 applymovement(Buizel, moves(face_player))
                 waitmovement(Buizel)
                 applymovement(LOCALID_PLAYER, moves(face_up))

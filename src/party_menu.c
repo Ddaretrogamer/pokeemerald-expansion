@@ -2705,7 +2705,14 @@ static void DisplayPartyPokemonHPCheck(struct Pokemon *mon, struct PartyMenuBox 
     if (GetMonData(mon, MON_DATA_SPECIES) != SPECIES_NONE)
     {
         if (c == 3)
-            FillWindowPixelRect(menuBox->windowId, PIXEL_FILL(0), 20, 25, 15, 8);
+        {
+            u16 maxHP = GetMonData(mon, MON_DATA_MAX_HP);
+            ConvertIntToDecimalStringN(gStringVar1, GetMonData(mon, MON_DATA_HP),
+                                       STR_CONV_MODE_RIGHT_ALIGN, maxHP >= 1000 ? 4 : 3);
+            FillWindowPixelRect(menuBox->windowId, PIXEL_FILL(0),
+                                menuBox->infoRects->dimensions[12], menuBox->infoRects->dimensions[13],
+                                GetStringWidth(FONT_SMALL, gStringVar1, 0), 13);
+        }
         else if (c != 0)
             menuBox->infoRects->blitFunc(menuBox->windowId, menuBox->infoRects->dimensions[12] >> 3, (menuBox->infoRects->dimensions[13] >> 3) + 1, menuBox->infoRects->dimensions[14] >> 3, menuBox->infoRects->dimensions[15] >> 3, FALSE);
         if (c != 2)
@@ -2713,12 +2720,12 @@ static void DisplayPartyPokemonHPCheck(struct Pokemon *mon, struct PartyMenuBox 
     }
 }
 
-static void DisplayParty4DigitsHP(struct PartyMenuBox *menuBox, const u8 *str, const u8 *origAlings, u32 toSub)
+static void DisplayParty4DigitsHP(struct PartyMenuBox *menuBox, const u8 *str, const u8 *origAlings, s32 xOffset)
 {
     u8 newAligns[4];
 
     memcpy(newAligns, origAlings, sizeof(newAligns));
-    newAligns[0] -= toSub; // x, so that the hp fits
+    newAligns[0] += xOffset;
     DisplayPartyPokemonBarDetail(menuBox->windowId, str, 0, newAligns);
 }
 
@@ -2730,8 +2737,8 @@ static void DisplayPartyPokemonHP(u16 hp, u16 maxhp, struct PartyMenuBox *menuBo
     strOut[0] = CHAR_SLASH;
     strOut[1] = EOS;
 
-    if (fourDigits)
-        DisplayParty4DigitsHP(menuBox, gStringVar1, &menuBox->infoRects->dimensions[12], 10);
+    if (fourDigits && menuBox->infoRects != &sPartyBoxInfoRects[PARTY_BOX_DITTO_STATS])
+        DisplayParty4DigitsHP(menuBox, gStringVar1, &menuBox->infoRects->dimensions[12], -10);
     else
         DisplayPartyPokemonBarDetail(menuBox->windowId, gStringVar1, 0, &menuBox->infoRects->dimensions[12]);
 }
@@ -2756,7 +2763,8 @@ static void DisplayPartyPokemonMaxHP(u16 maxhp, struct PartyMenuBox *menuBox)
     StringAppend(gStringVar1, gStringVar2);
 
     if (fourDigits)
-        DisplayParty4DigitsHP(menuBox, gStringVar1, &menuBox->infoRects->dimensions[16], 5);
+        DisplayParty4DigitsHP(menuBox, gStringVar1, &menuBox->infoRects->dimensions[16],
+                             menuBox->infoRects == &sPartyBoxInfoRects[PARTY_BOX_DITTO_STATS] ? 5 : -5);
     else
         DisplayPartyPokemonBarDetail(menuBox->windowId, gStringVar1, 0, &menuBox->infoRects->dimensions[16]);
 }
